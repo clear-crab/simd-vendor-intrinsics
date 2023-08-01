@@ -7,7 +7,7 @@ on:
 
 env:
   REMOTE_NAME: update
-  REMOTE_URL: https://github.com/rust-lang/stdarch
+  REMOTE_URL: https://github.com/rust-lang/stdarch.git
   REMOTE_BRANCH: master
 
 permissions:
