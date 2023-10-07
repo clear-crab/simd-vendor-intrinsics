@@ -790,8 +790,7 @@ pub unsafe fn _mm_ucomineq_ss(a: __m128, b: __m128) -> i32 {
 ///
 /// The result is rounded according to the current rounding mode. If the result
 /// cannot be represented as a 32 bit integer the result will be `0x8000_0000`
-/// (`i32::MIN`) or an invalid operation floating point exception if
-/// unmasked (see [`_mm_setcsr`](fn._mm_setcsr.html)).
+/// (`i32::MIN`).
 ///
 /// This corresponds to the `CVTSS2SI` instruction (with 32 bit output).
 ///
@@ -821,8 +820,7 @@ pub unsafe fn _mm_cvt_ss2si(a: __m128) -> i32 {
 ///
 /// The result is rounded always using truncation (round towards zero). If the
 /// result cannot be represented as a 32 bit integer the result will be
-/// `0x8000_0000` (`i32::MIN`) or an invalid operation floating point
-/// exception if unmasked (see [`_mm_setcsr`](fn._mm_setcsr.html)).
+/// `0x8000_0000` (`i32::MIN`).
 ///
 /// This corresponds to the `CVTTSS2SI` instruction (with 32 bit output).
 ///
@@ -1382,7 +1380,7 @@ pub unsafe fn _mm_sfence() {
 #[cfg_attr(test, assert_instr(stmxcsr))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[deprecated(
-    since = "1.73.0",
+    since = "1.75.0",
     note = "see `_mm_getcsr` documentation - use inline assembly instead"
 )]
 pub unsafe fn _mm_getcsr() -> u32 {
@@ -1533,7 +1531,7 @@ pub unsafe fn _mm_getcsr() -> u32 {
 #[cfg_attr(test, assert_instr(ldmxcsr))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[deprecated(
-    since = "1.73.0",
+    since = "1.75.0",
     note = "see `_mm_setcsr` documentation - use inline assembly instead"
 )]
 pub unsafe fn _mm_setcsr(val: u32) {
@@ -1615,9 +1613,14 @@ pub const _MM_FLUSH_ZERO_OFF: u32 = 0x0000;
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_GET_EXCEPTION_MASK)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_getcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_GET_EXCEPTION_MASK() -> u32 {
     _mm_getcsr() & _MM_MASK_MASK
 }
@@ -1626,9 +1629,14 @@ pub unsafe fn _MM_GET_EXCEPTION_MASK() -> u32 {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_GET_EXCEPTION_STATE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_getcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_GET_EXCEPTION_STATE() -> u32 {
     _mm_getcsr() & _MM_EXCEPT_MASK
 }
@@ -1637,9 +1645,14 @@ pub unsafe fn _MM_GET_EXCEPTION_STATE() -> u32 {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_GET_FLUSH_ZERO_MODE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_getcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_GET_FLUSH_ZERO_MODE() -> u32 {
     _mm_getcsr() & _MM_FLUSH_ZERO_MASK
 }
@@ -1648,9 +1661,14 @@ pub unsafe fn _MM_GET_FLUSH_ZERO_MODE() -> u32 {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_GET_ROUNDING_MODE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_getcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_GET_ROUNDING_MODE() -> u32 {
     _mm_getcsr() & _MM_ROUND_MASK
 }
@@ -1659,9 +1677,14 @@ pub unsafe fn _MM_GET_ROUNDING_MODE() -> u32 {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_SET_EXCEPTION_MASK)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_setcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_SET_EXCEPTION_MASK(x: u32) {
     _mm_setcsr((_mm_getcsr() & !_MM_MASK_MASK) | x)
 }
@@ -1670,9 +1693,14 @@ pub unsafe fn _MM_SET_EXCEPTION_MASK(x: u32) {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_SET_EXCEPTION_STATE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_setcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_SET_EXCEPTION_STATE(x: u32) {
     _mm_setcsr((_mm_getcsr() & !_MM_EXCEPT_MASK) | x)
 }
@@ -1681,9 +1709,14 @@ pub unsafe fn _MM_SET_EXCEPTION_STATE(x: u32) {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_SET_FLUSH_ZERO_MODE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_setcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_SET_FLUSH_ZERO_MODE(x: u32) {
     let val = (_mm_getcsr() & !_MM_FLUSH_ZERO_MASK) | x;
     // println!("setting csr={:x}", val);
@@ -1694,9 +1727,14 @@ pub unsafe fn _MM_SET_FLUSH_ZERO_MODE(x: u32) {
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_MM_SET_ROUNDING_MODE)
 #[inline]
+#[allow(deprecated)] // Deprecated function implemented on top of deprecated function
 #[allow(non_snake_case)]
 #[target_feature(enable = "sse")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
+#[deprecated(
+    since = "1.75.0",
+    note = "see `_mm_setcsr` documentation - use inline assembly instead"
+)]
 pub unsafe fn _MM_SET_ROUNDING_MODE(x: u32) {
     _mm_setcsr((_mm_getcsr() & !_MM_ROUND_MASK) | x)
 }
@@ -2001,7 +2039,11 @@ mod tests {
         let a = _mm_setr_ps(4.0, 13.0, 16.0, 100.0);
         let r = _mm_rcp_ss(a);
         let e = _mm_setr_ps(0.24993896, 13.0, 16.0, 100.0);
-        assert_eq_m128(r, e);
+        let rel_err = 0.00048828125;
+        assert_approx_eq!(get_m128(r, 0), get_m128(e, 0), 2. * rel_err);
+        for i in 1..4 {
+            assert_eq!(get_m128(r, i), get_m128(e, i));
+        }
     }
 
     #[simd_test(enable = "sse")]
@@ -2804,7 +2846,9 @@ mod tests {
         }
     }
 
+    #[allow(deprecated)] // FIXME: This test uses deprecated CSR access functions
     #[simd_test(enable = "sse")]
+    #[cfg_attr(miri, ignore)] // Uses _mm_setcsr, which is not supported by Miri
     unsafe fn test_mm_comieq_ss_vs_ucomieq_ss() {
         // If one of the arguments is a quiet NaN `comieq_ss` should signal an
         // Invalid Operation Exception while `ucomieq_ss` should not.
@@ -3110,7 +3154,7 @@ mod tests {
         let mut p = vals.as_mut_ptr();
 
         if (p as usize) & 0xf != 0 {
-            ofs = ((16 - (p as usize)) & 0xf) >> 2;
+            ofs = (16 - ((p as usize) & 0xf)) >> 2;
             p = p.add(ofs);
         }
 
@@ -3136,7 +3180,7 @@ mod tests {
 
         // Align p to 16-byte boundary
         if (p as usize) & 0xf != 0 {
-            ofs = ((16 - (p as usize)) & 0xf) >> 2;
+            ofs = (16 - ((p as usize) & 0xf)) >> 2;
             p = p.add(ofs);
         }
 
@@ -3162,7 +3206,7 @@ mod tests {
 
         // Align p to 16-byte boundary
         if (p as usize) & 0xf != 0 {
-            ofs = ((16 - (p as usize)) & 0xf) >> 2;
+            ofs = (16 - ((p as usize) & 0xf)) >> 2;
             p = p.add(ofs);
         }
 
@@ -3224,11 +3268,15 @@ mod tests {
     }
 
     #[simd_test(enable = "sse")]
+    // Miri cannot support this until it is clear how it fits in the Rust memory model
+    #[cfg_attr(miri, ignore)]
     unsafe fn test_mm_sfence() {
         _mm_sfence();
     }
 
+    #[allow(deprecated)] // FIXME: This tests functions that are immediate UB
     #[simd_test(enable = "sse")]
+    #[cfg_attr(miri, ignore)] // Miri does not support accesing the CSR
     unsafe fn test_mm_getcsr_setcsr_1() {
         let saved_csr = _mm_getcsr();
 
@@ -3244,7 +3292,9 @@ mod tests {
         assert_eq_m128(r, exp); // first component is a denormalized f32
     }
 
+    #[allow(deprecated)] // FIXME: This tests functions that are immediate UB
     #[simd_test(enable = "sse")]
+    #[cfg_attr(miri, ignore)] // Miri does not support accesing the CSR
     unsafe fn test_mm_getcsr_setcsr_2() {
         // Same as _mm_setcsr_1 test, but with opposite flag value.
 
@@ -3262,7 +3312,9 @@ mod tests {
         assert_eq_m128(r, exp); // first component is a denormalized f32
     }
 
+    #[allow(deprecated)] // FIXME: This tests functions that are immediate UB
     #[simd_test(enable = "sse")]
+    #[cfg_attr(miri, ignore)] // Miri does not support accesing the CSR
     unsafe fn test_mm_getcsr_setcsr_underflow() {
         _MM_SET_EXCEPTION_STATE(0);
 
@@ -3301,6 +3353,9 @@ mod tests {
     }
 
     #[simd_test(enable = "sse")]
+    // Miri cannot support this until it is clear how it fits in the Rust memory model
+    // (non-temporal store)
+    #[cfg_attr(miri, ignore)]
     unsafe fn test_mm_stream_ps() {
         let a = _mm_set1_ps(7.0);
         let mut mem = Memory { data: [-1.0; 4] };
