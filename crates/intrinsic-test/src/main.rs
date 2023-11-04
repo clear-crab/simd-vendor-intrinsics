@@ -166,14 +166,19 @@ fn generate_rust_program(notices: &str, intrinsic: &Intrinsic, a32: bool) -> Str
     format!(
         r#"{notices}#![feature(simd_ffi)]
 #![feature(link_llvm_intrinsics)]
-#![feature(stdsimd)]
-#![allow(overflowing_literals)]
+#![cfg_attr(target_arch = "arm", feature(stdarch_arm_neon_intrinsics))]
+#![feature(stdarch_arm_crc32)]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_fcma))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_dotprod))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_i8mm))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_sha3))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_sm4))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_neon_ftts))]
 #![allow(non_upper_case_globals)]
 use core_arch::arch::{target_arch}::*;
 
-{arglists}
-
 fn main() {{
+{arglists}
 {passes}
 }}
 "#,
@@ -261,7 +266,7 @@ fn build_rust(notices: &str, intrinsics: &[Intrinsic], toolchain: &str, a32: boo
                 r#"[package]
 name = "intrinsic-test-programs"
 version = "{version}"
-authors = ["{authors}"]
+authors = [{authors}]
 license = "{license}"
 edition = "2018"
 [workspace]
@@ -269,7 +274,9 @@ edition = "2018"
 core_arch = {{ path = "../crates/core_arch" }}
 {binaries}"#,
                 version = env!("CARGO_PKG_VERSION"),
-                authors = env!("CARGO_PKG_AUTHORS"),
+                authors = env!("CARGO_PKG_AUTHORS")
+                    .split(":")
+                    .format_with(", ", |author, fmt| fmt(&format_args!("\"{author}\""))),
                 license = env!("CARGO_PKG_LICENSE"),
                 binaries = intrinsics
                     .iter()

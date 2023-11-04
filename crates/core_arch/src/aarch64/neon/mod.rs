@@ -5,6 +5,7 @@
 #[rustfmt::skip]
 mod generated;
 #[rustfmt::skip]
+#[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub use self::generated::*;
 
 // FIXME: replace neon with asimd
@@ -1072,10 +1073,7 @@ pub unsafe fn vbsl_f64(a: uint64x1_t, b: float64x1_t, c: float64x1_t) -> float64
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vbsl_p64(a: poly64x1_t, b: poly64x1_t, c: poly64x1_t) -> poly64x1_t {
     let not = int64x1_t(-1);
-    transmute(simd_or(
-        simd_and(a, transmute(b)),
-        simd_and(simd_xor(a, transmute(not)), transmute(c)),
-    ))
+    simd_or(simd_and(a, b), simd_and(simd_xor(a, transmute(not)), c))
 }
 /// Bitwise Select. (128-bit)
 #[inline]
@@ -1096,10 +1094,7 @@ pub unsafe fn vbslq_f64(a: uint64x2_t, b: float64x2_t, c: float64x2_t) -> float6
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vbslq_p64(a: poly64x2_t, b: poly64x2_t, c: poly64x2_t) -> poly64x2_t {
     let not = int64x2_t(-1, -1);
-    transmute(simd_or(
-        simd_and(a, transmute(b)),
-        simd_and(simd_xor(a, transmute(not)), transmute(c)),
-    ))
+    simd_or(simd_and(a, b), simd_and(simd_xor(a, transmute(not)), c))
 }
 
 /// Signed saturating Accumulate of Unsigned value.
@@ -1310,7 +1305,7 @@ pub unsafe fn vpaddd_s64(a: int64x2_t) -> i64 {
 #[cfg_attr(test, assert_instr(addp))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vpaddd_u64(a: uint64x2_t) -> u64 {
-    transmute(vaddvq_u64_(transmute(a)))
+    vaddvq_u64_(a)
 }
 
 /// Add across vector
@@ -2398,7 +2393,7 @@ pub unsafe fn vqtbl1q_s8(t: int8x16_t, idx: uint8x16_t) -> int8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl1_u8(t: uint8x16_t, idx: uint8x8_t) -> uint8x8_t {
-    transmute(vqtbl1(transmute(t), transmute(idx)))
+    transmute(vqtbl1(transmute(t), idx))
 }
 
 /// Table look-up
@@ -2407,7 +2402,7 @@ pub unsafe fn vqtbl1_u8(t: uint8x16_t, idx: uint8x8_t) -> uint8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl1q_u8(t: uint8x16_t, idx: uint8x16_t) -> uint8x16_t {
-    transmute(vqtbl1q(transmute(t), transmute(idx)))
+    transmute(vqtbl1q(transmute(t), idx))
 }
 
 /// Table look-up
@@ -2416,7 +2411,7 @@ pub unsafe fn vqtbl1q_u8(t: uint8x16_t, idx: uint8x16_t) -> uint8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl1_p8(t: poly8x16_t, idx: uint8x8_t) -> poly8x8_t {
-    transmute(vqtbl1(transmute(t), transmute(idx)))
+    transmute(vqtbl1(transmute(t), idx))
 }
 
 /// Table look-up
@@ -2425,7 +2420,7 @@ pub unsafe fn vqtbl1_p8(t: poly8x16_t, idx: uint8x8_t) -> poly8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl1q_p8(t: poly8x16_t, idx: uint8x16_t) -> poly8x16_t {
-    transmute(vqtbl1q(transmute(t), transmute(idx)))
+    transmute(vqtbl1q(transmute(t), idx))
 }
 
 /// Extended table look-up
@@ -2452,7 +2447,7 @@ pub unsafe fn vqtbx1q_s8(a: int8x16_t, t: int8x16_t, idx: uint8x16_t) -> int8x16
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx1_u8(a: uint8x8_t, t: uint8x16_t, idx: uint8x8_t) -> uint8x8_t {
-    transmute(vqtbx1(transmute(a), transmute(t), transmute(idx)))
+    transmute(vqtbx1(transmute(a), transmute(t), idx))
 }
 
 /// Extended table look-up
@@ -2461,7 +2456,7 @@ pub unsafe fn vqtbx1_u8(a: uint8x8_t, t: uint8x16_t, idx: uint8x8_t) -> uint8x8_
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx1q_u8(a: uint8x16_t, t: uint8x16_t, idx: uint8x16_t) -> uint8x16_t {
-    transmute(vqtbx1q(transmute(a), transmute(t), transmute(idx)))
+    transmute(vqtbx1q(transmute(a), transmute(t), idx))
 }
 
 /// Extended table look-up
@@ -2470,7 +2465,7 @@ pub unsafe fn vqtbx1q_u8(a: uint8x16_t, t: uint8x16_t, idx: uint8x16_t) -> uint8
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx1_p8(a: poly8x8_t, t: poly8x16_t, idx: uint8x8_t) -> poly8x8_t {
-    transmute(vqtbx1(transmute(a), transmute(t), transmute(idx)))
+    transmute(vqtbx1(transmute(a), transmute(t), idx))
 }
 
 /// Extended table look-up
@@ -2479,7 +2474,7 @@ pub unsafe fn vqtbx1_p8(a: poly8x8_t, t: poly8x16_t, idx: uint8x8_t) -> poly8x8_
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx1q_p8(a: poly8x16_t, t: poly8x16_t, idx: uint8x16_t) -> poly8x16_t {
-    transmute(vqtbx1q(transmute(a), transmute(t), transmute(idx)))
+    transmute(vqtbx1q(transmute(a), transmute(t), idx))
 }
 
 /// Table look-up
@@ -2506,7 +2501,7 @@ pub unsafe fn vqtbl2q_s8(t: int8x16x2_t, idx: uint8x16_t) -> int8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl2_u8(t: uint8x16x2_t, idx: uint8x8_t) -> uint8x8_t {
-    transmute(vqtbl2(transmute(t.0), transmute(t.1), transmute(idx)))
+    transmute(vqtbl2(transmute(t.0), transmute(t.1), idx))
 }
 
 /// Table look-up
@@ -2515,7 +2510,7 @@ pub unsafe fn vqtbl2_u8(t: uint8x16x2_t, idx: uint8x8_t) -> uint8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl2q_u8(t: uint8x16x2_t, idx: uint8x16_t) -> uint8x16_t {
-    transmute(vqtbl2q(transmute(t.0), transmute(t.1), transmute(idx)))
+    transmute(vqtbl2q(transmute(t.0), transmute(t.1), idx))
 }
 
 /// Table look-up
@@ -2524,7 +2519,7 @@ pub unsafe fn vqtbl2q_u8(t: uint8x16x2_t, idx: uint8x16_t) -> uint8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl2_p8(t: poly8x16x2_t, idx: uint8x8_t) -> poly8x8_t {
-    transmute(vqtbl2(transmute(t.0), transmute(t.1), transmute(idx)))
+    transmute(vqtbl2(transmute(t.0), transmute(t.1), idx))
 }
 
 /// Table look-up
@@ -2533,7 +2528,7 @@ pub unsafe fn vqtbl2_p8(t: poly8x16x2_t, idx: uint8x8_t) -> poly8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl2q_p8(t: poly8x16x2_t, idx: uint8x16_t) -> poly8x16_t {
-    transmute(vqtbl2q(transmute(t.0), transmute(t.1), transmute(idx)))
+    transmute(vqtbl2q(transmute(t.0), transmute(t.1), idx))
 }
 
 /// Extended table look-up
@@ -2560,12 +2555,7 @@ pub unsafe fn vqtbx2q_s8(a: int8x16_t, t: int8x16x2_t, idx: uint8x16_t) -> int8x
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx2_u8(a: uint8x8_t, t: uint8x16x2_t, idx: uint8x8_t) -> uint8x8_t {
-    transmute(vqtbx2(
-        transmute(a),
-        transmute(t.0),
-        transmute(t.1),
-        transmute(idx),
-    ))
+    transmute(vqtbx2(transmute(a), transmute(t.0), transmute(t.1), idx))
 }
 
 /// Extended table look-up
@@ -2574,12 +2564,7 @@ pub unsafe fn vqtbx2_u8(a: uint8x8_t, t: uint8x16x2_t, idx: uint8x8_t) -> uint8x
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx2q_u8(a: uint8x16_t, t: uint8x16x2_t, idx: uint8x16_t) -> uint8x16_t {
-    transmute(vqtbx2q(
-        transmute(a),
-        transmute(t.0),
-        transmute(t.1),
-        transmute(idx),
-    ))
+    transmute(vqtbx2q(transmute(a), transmute(t.0), transmute(t.1), idx))
 }
 
 /// Extended table look-up
@@ -2588,12 +2573,7 @@ pub unsafe fn vqtbx2q_u8(a: uint8x16_t, t: uint8x16x2_t, idx: uint8x16_t) -> uin
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx2_p8(a: poly8x8_t, t: poly8x16x2_t, idx: uint8x8_t) -> poly8x8_t {
-    transmute(vqtbx2(
-        transmute(a),
-        transmute(t.0),
-        transmute(t.1),
-        transmute(idx),
-    ))
+    transmute(vqtbx2(transmute(a), transmute(t.0), transmute(t.1), idx))
 }
 
 /// Extended table look-up
@@ -2602,12 +2582,7 @@ pub unsafe fn vqtbx2_p8(a: poly8x8_t, t: poly8x16x2_t, idx: uint8x8_t) -> poly8x
 #[cfg_attr(test, assert_instr(tbx))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbx2q_p8(a: poly8x16_t, t: poly8x16x2_t, idx: uint8x16_t) -> poly8x16_t {
-    transmute(vqtbx2q(
-        transmute(a),
-        transmute(t.0),
-        transmute(t.1),
-        transmute(idx),
-    ))
+    transmute(vqtbx2q(transmute(a), transmute(t.0), transmute(t.1), idx))
 }
 
 /// Table look-up
@@ -2634,12 +2609,7 @@ pub unsafe fn vqtbl3q_s8(t: int8x16x3_t, idx: uint8x16_t) -> int8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl3_u8(t: uint8x16x3_t, idx: uint8x8_t) -> uint8x8_t {
-    transmute(vqtbl3(
-        transmute(t.0),
-        transmute(t.1),
-        transmute(t.2),
-        transmute(idx),
-    ))
+    transmute(vqtbl3(transmute(t.0), transmute(t.1), transmute(t.2), idx))
 }
 
 /// Table look-up
@@ -2648,12 +2618,7 @@ pub unsafe fn vqtbl3_u8(t: uint8x16x3_t, idx: uint8x8_t) -> uint8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl3q_u8(t: uint8x16x3_t, idx: uint8x16_t) -> uint8x16_t {
-    transmute(vqtbl3q(
-        transmute(t.0),
-        transmute(t.1),
-        transmute(t.2),
-        transmute(idx),
-    ))
+    transmute(vqtbl3q(transmute(t.0), transmute(t.1), transmute(t.2), idx))
 }
 
 /// Table look-up
@@ -2662,12 +2627,7 @@ pub unsafe fn vqtbl3q_u8(t: uint8x16x3_t, idx: uint8x16_t) -> uint8x16_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl3_p8(t: poly8x16x3_t, idx: uint8x8_t) -> poly8x8_t {
-    transmute(vqtbl3(
-        transmute(t.0),
-        transmute(t.1),
-        transmute(t.2),
-        transmute(idx),
-    ))
+    transmute(vqtbl3(transmute(t.0), transmute(t.1), transmute(t.2), idx))
 }
 
 /// Table look-up
@@ -2676,12 +2636,7 @@ pub unsafe fn vqtbl3_p8(t: poly8x16x3_t, idx: uint8x8_t) -> poly8x8_t {
 #[cfg_attr(test, assert_instr(tbl))]
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vqtbl3q_p8(t: poly8x16x3_t, idx: uint8x16_t) -> poly8x16_t {
-    transmute(vqtbl3q(
-        transmute(t.0),
-        transmute(t.1),
-        transmute(t.2),
-        transmute(idx),
-    ))
+    transmute(vqtbl3q(transmute(t.0), transmute(t.1), transmute(t.2), idx))
 }
 
 /// Extended table look-up
@@ -2713,7 +2668,7 @@ pub unsafe fn vqtbx3_u8(a: uint8x8_t, t: uint8x16x3_t, idx: uint8x8_t) -> uint8x
         transmute(t.0),
         transmute(t.1),
         transmute(t.2),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2728,7 +2683,7 @@ pub unsafe fn vqtbx3q_u8(a: uint8x16_t, t: uint8x16x3_t, idx: uint8x16_t) -> uin
         transmute(t.0),
         transmute(t.1),
         transmute(t.2),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2743,7 +2698,7 @@ pub unsafe fn vqtbx3_p8(a: poly8x8_t, t: poly8x16x3_t, idx: uint8x8_t) -> poly8x
         transmute(t.0),
         transmute(t.1),
         transmute(t.2),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2758,7 +2713,7 @@ pub unsafe fn vqtbx3q_p8(a: poly8x16_t, t: poly8x16x3_t, idx: uint8x16_t) -> pol
         transmute(t.0),
         transmute(t.1),
         transmute(t.2),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2791,7 +2746,7 @@ pub unsafe fn vqtbl4_u8(t: uint8x16x4_t, idx: uint8x8_t) -> uint8x8_t {
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2806,7 +2761,7 @@ pub unsafe fn vqtbl4q_u8(t: uint8x16x4_t, idx: uint8x16_t) -> uint8x16_t {
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2821,7 +2776,7 @@ pub unsafe fn vqtbl4_p8(t: poly8x16x4_t, idx: uint8x8_t) -> poly8x8_t {
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2836,7 +2791,7 @@ pub unsafe fn vqtbl4q_p8(t: poly8x16x4_t, idx: uint8x16_t) -> poly8x16_t {
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2870,7 +2825,7 @@ pub unsafe fn vqtbx4_u8(a: uint8x8_t, t: uint8x16x4_t, idx: uint8x8_t) -> uint8x
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2886,7 +2841,7 @@ pub unsafe fn vqtbx4q_u8(a: uint8x16_t, t: uint8x16x4_t, idx: uint8x16_t) -> uin
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2902,7 +2857,7 @@ pub unsafe fn vqtbx4_p8(a: poly8x8_t, t: poly8x16x4_t, idx: uint8x8_t) -> poly8x
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -2918,7 +2873,7 @@ pub unsafe fn vqtbx4q_p8(a: poly8x16_t, t: poly8x16x4_t, idx: uint8x16_t) -> pol
         transmute(t.1),
         transmute(t.2),
         transmute(t.3),
-        transmute(idx),
+        idx,
     ))
 }
 
@@ -3452,6 +3407,7 @@ pub unsafe fn vsriq_n_p64<const N: i32>(a: poly64x2_t, b: poly64x2_t) -> poly64x
 #[target_feature(enable = "neon,sm4")]
 #[cfg_attr(test, assert_instr(sm3tt1a, IMM2 = 0))]
 #[rustc_legacy_const_generics(3)]
+#[unstable(feature = "stdarch_neon_sm4", issue = "117226")]
 pub unsafe fn vsm3tt1aq_u32<const IMM2: i32>(
     a: uint32x4_t,
     b: uint32x4_t,
@@ -3471,6 +3427,7 @@ pub unsafe fn vsm3tt1aq_u32<const IMM2: i32>(
 #[target_feature(enable = "neon,sm4")]
 #[cfg_attr(test, assert_instr(sm3tt1b, IMM2 = 0))]
 #[rustc_legacy_const_generics(3)]
+#[unstable(feature = "stdarch_neon_sm4", issue = "117226")]
 pub unsafe fn vsm3tt1bq_u32<const IMM2: i32>(
     a: uint32x4_t,
     b: uint32x4_t,
@@ -3490,6 +3447,7 @@ pub unsafe fn vsm3tt1bq_u32<const IMM2: i32>(
 #[target_feature(enable = "neon,sm4")]
 #[cfg_attr(test, assert_instr(sm3tt2a, IMM2 = 0))]
 #[rustc_legacy_const_generics(3)]
+#[unstable(feature = "stdarch_neon_sm4", issue = "117226")]
 pub unsafe fn vsm3tt2aq_u32<const IMM2: i32>(
     a: uint32x4_t,
     b: uint32x4_t,
@@ -3509,6 +3467,7 @@ pub unsafe fn vsm3tt2aq_u32<const IMM2: i32>(
 #[target_feature(enable = "neon,sm4")]
 #[cfg_attr(test, assert_instr(sm3tt2b, IMM2 = 0))]
 #[rustc_legacy_const_generics(3)]
+#[unstable(feature = "stdarch_neon_sm4", issue = "117226")]
 pub unsafe fn vsm3tt2bq_u32<const IMM2: i32>(
     a: uint32x4_t,
     b: uint32x4_t,
@@ -3528,6 +3487,7 @@ pub unsafe fn vsm3tt2bq_u32<const IMM2: i32>(
 #[target_feature(enable = "neon,sha3")]
 #[cfg_attr(test, assert_instr(xar, IMM6 = 0))]
 #[rustc_legacy_const_generics(2)]
+#[unstable(feature = "stdarch_neon_sha3", issue = "117225")]
 pub unsafe fn vxarq_u64<const IMM6: i32>(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
     static_assert_uimm_bits!(IMM6, 6);
     #[allow(improper_ctypes)]
@@ -3783,14 +3743,14 @@ mod tests {
     #[simd_test(enable = "neon")]
     unsafe fn test_vpaddd_s64() {
         let a = i64x2::new(2, -3);
-        let r: i64 = transmute(vpaddd_s64(transmute(a)));
+        let r: i64 = vpaddd_s64(transmute(a));
         let e = -1_i64;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vpaddd_u64() {
         let a = i64x2::new(2, 3);
-        let r: u64 = transmute(vpaddd_u64(transmute(a)));
+        let r: u64 = vpaddd_u64(transmute(a));
         let e = 5_u64;
         assert_eq!(r, e);
     }
@@ -3836,7 +3796,7 @@ mod tests {
         let a = 1_i64;
         let b = 8_i64;
         let e = 9_i64;
-        let r: i64 = transmute(vaddd_s64(transmute(a), transmute(b)));
+        let r: i64 = vaddd_s64(a, b);
         assert_eq!(r, e);
     }
 
@@ -3845,7 +3805,7 @@ mod tests {
         let a = 1_u64;
         let b = 8_u64;
         let e = 9_u64;
-        let r: u64 = transmute(vaddd_u64(transmute(a), transmute(b)));
+        let r: u64 = vaddd_u64(a, b);
         assert_eq!(r, e);
     }
 
@@ -4281,7 +4241,7 @@ mod tests {
     unsafe fn test_vdup_n_f64() {
         let a: f64 = 3.3;
         let e = f64x1::new(3.3);
-        let r: f64x1 = transmute(vdup_n_f64(transmute(a)));
+        let r: f64x1 = transmute(vdup_n_f64(a));
         assert_eq!(r, e);
     }
 
@@ -4289,7 +4249,7 @@ mod tests {
     unsafe fn test_vdup_n_p64() {
         let a: u64 = 3;
         let e = u64x1::new(3);
-        let r: u64x1 = transmute(vdup_n_p64(transmute(a)));
+        let r: u64x1 = transmute(vdup_n_p64(a));
         assert_eq!(r, e);
     }
 
@@ -4297,7 +4257,7 @@ mod tests {
     unsafe fn test_vdupq_n_f64() {
         let a: f64 = 3.3;
         let e = f64x2::new(3.3, 3.3);
-        let r: f64x2 = transmute(vdupq_n_f64(transmute(a)));
+        let r: f64x2 = transmute(vdupq_n_f64(a));
         assert_eq!(r, e);
     }
 
@@ -4305,7 +4265,7 @@ mod tests {
     unsafe fn test_vdupq_n_p64() {
         let a: u64 = 3;
         let e = u64x2::new(3, 3);
-        let r: u64x2 = transmute(vdupq_n_p64(transmute(a)));
+        let r: u64x2 = transmute(vdupq_n_p64(a));
         assert_eq!(r, e);
     }
 
@@ -4313,7 +4273,7 @@ mod tests {
     unsafe fn test_vmov_n_p64() {
         let a: u64 = 3;
         let e = u64x1::new(3);
-        let r: u64x1 = transmute(vmov_n_p64(transmute(a)));
+        let r: u64x1 = transmute(vmov_n_p64(a));
         assert_eq!(r, e);
     }
 
@@ -4321,7 +4281,7 @@ mod tests {
     unsafe fn test_vmov_n_f64() {
         let a: f64 = 3.3;
         let e = f64x1::new(3.3);
-        let r: f64x1 = transmute(vmov_n_f64(transmute(a)));
+        let r: f64x1 = transmute(vmov_n_f64(a));
         assert_eq!(r, e);
     }
 
@@ -4329,7 +4289,7 @@ mod tests {
     unsafe fn test_vmovq_n_p64() {
         let a: u64 = 3;
         let e = u64x2::new(3, 3);
-        let r: u64x2 = transmute(vmovq_n_p64(transmute(a)));
+        let r: u64x2 = transmute(vmovq_n_p64(a));
         assert_eq!(r, e);
     }
 
@@ -4337,7 +4297,7 @@ mod tests {
     unsafe fn test_vmovq_n_f64() {
         let a: f64 = 3.3;
         let e = f64x2::new(3.3, 3.3);
-        let r: f64x2 = transmute(vmovq_n_f64(transmute(a)));
+        let r: f64x2 = transmute(vmovq_n_f64(a));
         assert_eq!(r, e);
     }
 
@@ -4978,98 +4938,98 @@ mod tests {
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_s16() {
         let a = i16x4::new(1, 2, 3, -4);
-        let r: i16 = transmute(vaddv_s16(transmute(a)));
+        let r: i16 = vaddv_s16(transmute(a));
         let e = 2_i16;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_u16() {
         let a = u16x4::new(1, 2, 3, 4);
-        let r: u16 = transmute(vaddv_u16(transmute(a)));
+        let r: u16 = vaddv_u16(transmute(a));
         let e = 10_u16;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_s32() {
         let a = i32x2::new(1, -2);
-        let r: i32 = transmute(vaddv_s32(transmute(a)));
+        let r: i32 = vaddv_s32(transmute(a));
         let e = -1_i32;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_u32() {
         let a = u32x2::new(1, 2);
-        let r: u32 = transmute(vaddv_u32(transmute(a)));
+        let r: u32 = vaddv_u32(transmute(a));
         let e = 3_u32;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_s8() {
         let a = i8x8::new(1, 2, 3, 4, 5, 6, 7, -8);
-        let r: i8 = transmute(vaddv_s8(transmute(a)));
+        let r: i8 = vaddv_s8(transmute(a));
         let e = 20_i8;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddv_u8() {
         let a = u8x8::new(1, 2, 3, 4, 5, 6, 7, 8);
-        let r: u8 = transmute(vaddv_u8(transmute(a)));
+        let r: u8 = vaddv_u8(transmute(a));
         let e = 36_u8;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_s16() {
         let a = i16x8::new(1, 2, 3, 4, 5, 6, 7, -8);
-        let r: i16 = transmute(vaddvq_s16(transmute(a)));
+        let r: i16 = vaddvq_s16(transmute(a));
         let e = 20_i16;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_u16() {
         let a = u16x8::new(1, 2, 3, 4, 5, 6, 7, 8);
-        let r: u16 = transmute(vaddvq_u16(transmute(a)));
+        let r: u16 = vaddvq_u16(transmute(a));
         let e = 36_u16;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_s32() {
         let a = i32x4::new(1, 2, 3, -4);
-        let r: i32 = transmute(vaddvq_s32(transmute(a)));
+        let r: i32 = vaddvq_s32(transmute(a));
         let e = 2_i32;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_u32() {
         let a = u32x4::new(1, 2, 3, 4);
-        let r: u32 = transmute(vaddvq_u32(transmute(a)));
+        let r: u32 = vaddvq_u32(transmute(a));
         let e = 10_u32;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_s8() {
         let a = i8x16::new(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, -16);
-        let r: i8 = transmute(vaddvq_s8(transmute(a)));
+        let r: i8 = vaddvq_s8(transmute(a));
         let e = 104_i8;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_u8() {
         let a = u8x16::new(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
-        let r: u8 = transmute(vaddvq_u8(transmute(a)));
+        let r: u8 = vaddvq_u8(transmute(a));
         let e = 136_u8;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_s64() {
         let a = i64x2::new(1, -2);
-        let r: i64 = transmute(vaddvq_s64(transmute(a)));
+        let r: i64 = vaddvq_s64(transmute(a));
         let e = -1_i64;
         assert_eq!(r, e);
     }
     #[simd_test(enable = "neon")]
     unsafe fn test_vaddvq_u64() {
         let a = u64x2::new(1, 2);
-        let r: u64 = transmute(vaddvq_u64(transmute(a)));
+        let r: u64 = vaddvq_u64(transmute(a));
         let e = 3_u64;
         assert_eq!(r, e);
     }

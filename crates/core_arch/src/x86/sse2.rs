@@ -3139,6 +3139,32 @@ mod tests {
         let r = _mm_madd_epi16(a, b);
         let e = _mm_setr_epi32(29, 81, 149, 233);
         assert_eq_m128i(r, e);
+
+        // Test large values.
+        // MIN*MIN+MIN*MIN will overflow into i32::MIN.
+        let a = _mm_setr_epi16(
+            i16::MAX,
+            i16::MAX,
+            i16::MIN,
+            i16::MIN,
+            i16::MIN,
+            i16::MAX,
+            0,
+            0,
+        );
+        let b = _mm_setr_epi16(
+            i16::MAX,
+            i16::MAX,
+            i16::MIN,
+            i16::MIN,
+            i16::MAX,
+            i16::MIN,
+            0,
+            0,
+        );
+        let r = _mm_madd_epi16(a, b);
+        let e = _mm_setr_epi32(0x7FFE0002, i32::MIN, -0x7FFF0000, 0);
+        assert_eq_m128i(r, e);
     }
 
     #[simd_test(enable = "sse2")]
@@ -3855,7 +3881,7 @@ mod tests {
     unsafe fn test_mm_store_si128() {
         let a = _mm_set1_epi8(9);
         let mut r = _mm_set1_epi8(0);
-        _mm_store_si128(&mut r as *mut _ as *mut __m128i, a);
+        _mm_store_si128(&mut r, a);
         assert_eq_m128i(r, a);
     }
 
@@ -3863,7 +3889,7 @@ mod tests {
     unsafe fn test_mm_storeu_si128() {
         let a = _mm_set1_epi8(9);
         let mut r = _mm_set1_epi8(0);
-        _mm_storeu_si128(&mut r as *mut _ as *mut __m128i, a);
+        _mm_storeu_si128(&mut r, a);
         assert_eq_m128i(r, a);
     }
 
@@ -3871,7 +3897,7 @@ mod tests {
     unsafe fn test_mm_storel_epi64() {
         let a = _mm_setr_epi64x(2, 9);
         let mut r = _mm_set1_epi8(0);
-        _mm_storel_epi64(&mut r as *mut _ as *mut __m128i, a);
+        _mm_storel_epi64(&mut r, a);
         assert_eq_m128i(r, _mm_setr_epi64x(2, 0));
     }
 

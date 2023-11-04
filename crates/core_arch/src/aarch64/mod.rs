@@ -10,17 +10,22 @@
 #[cfg(target_endian = "little")]
 mod neon;
 #[cfg(target_endian = "little")]
+#[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub use self::neon::*;
 
 mod tme;
+#[unstable(feature = "stdarch_aarch64_tme", issue = "117216")]
 pub use self::tme::*;
 
 mod crc;
+#[unstable(feature = "stdarch_arm_crc32", issue = "117215")]
 pub use self::crc::*;
 
 mod prefetch;
+#[unstable(feature = "stdarch_aarch64_prefetch", issue = "117217")]
 pub use self::prefetch::*;
 
+#[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub use super::arm_shared::*;
 
 #[cfg(test)]
