@@ -335,6 +335,28 @@ extern "C" {
 
     #[link_name = "llvm.ppc.altivec.vlogefp"]
     fn vlogefp(a: vector_float) -> vector_float;
+
+    #[link_name = "llvm.ppc.altivec.sll"]
+    fn vsl(a: vector_signed_int, b: vector_signed_int) -> vector_signed_int;
+    #[link_name = "llvm.ppc.altivec.slo"]
+    fn vslo(a: vector_signed_int, b: vector_signed_int) -> vector_signed_int;
+
+    #[link_name = "llvm.ppc.altivec.srab"]
+    fn vsrab(a: vector_signed_char, b: vector_unsigned_char) -> vector_signed_char;
+    #[link_name = "llvm.ppc.altivec.srah"]
+    fn vsrah(a: vector_signed_short, b: vector_unsigned_short) -> vector_signed_short;
+    #[link_name = "llvm.ppc.altivec.sraw"]
+    fn vsraw(a: vector_signed_int, b: vector_unsigned_int) -> vector_signed_int;
+
+    #[link_name = "llvm.ppc.altivec.srl"]
+    fn vsr(a: vector_signed_int, b: vector_signed_int) -> vector_signed_int;
+    #[link_name = "llvm.ppc.altivec.sro"]
+    fn vsro(a: vector_signed_int, b: vector_signed_int) -> vector_signed_int;
+
+    #[link_name = "llvm.ppc.altivec.slv"]
+    fn vslv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char;
+    #[link_name = "llvm.ppc.altivec.srv"]
+    fn vsrv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char;
 }
 
 macro_rules! s_t_l {
@@ -386,6 +408,32 @@ macro_rules! t_t_l {
 
     (f32) => {
         vector_float
+    };
+}
+
+macro_rules! t_t_s {
+    (i32) => {
+        i32x4
+    };
+    (i16) => {
+        i16x8
+    };
+    (i8) => {
+        i8x16
+    };
+
+    (u32) => {
+        u32x4
+    };
+    (u16) => {
+        u16x8
+    };
+    (u8) => {
+        u8x16
+    };
+
+    (f32) => {
+        f32x4
     };
 }
 
@@ -2620,6 +2668,264 @@ mod sealed {
     impl_vec_trait! { [VectorUnpackl vec_unpackl]+ vec_vupklsb (vector_bool_char) -> vector_bool_short }
     impl_vec_trait! { [VectorUnpackl vec_unpackl] vec_vupklsh (vector_signed_short) -> vector_signed_int }
     impl_vec_trait! { [VectorUnpackl vec_unpackl]+ vec_vupklsh (vector_bool_short) -> vector_bool_int }
+
+    macro_rules! impl_vec_shift {
+        ([$Trait:ident $m:ident] ($b:ident, $h:ident, $w:ident)) => {
+            impl_vec_trait!{ [$Trait $m]+ $b (vector_unsigned_char, vector_unsigned_char) -> vector_unsigned_char }
+            impl_vec_trait!{ [$Trait $m]+ $b (vector_signed_char, vector_unsigned_char) -> vector_signed_char }
+            impl_vec_trait!{ [$Trait $m]+ $h (vector_unsigned_short, vector_unsigned_short) -> vector_unsigned_short }
+            impl_vec_trait!{ [$Trait $m]+ $h (vector_signed_short, vector_unsigned_short) -> vector_signed_short }
+            impl_vec_trait!{ [$Trait $m]+ $w (vector_unsigned_int, vector_unsigned_int) -> vector_unsigned_int }
+            impl_vec_trait!{ [$Trait $m]+ $w (vector_signed_int, vector_unsigned_int) -> vector_signed_int }
+        };
+    }
+
+    macro_rules! impl_shift {
+        ($fun:ident $intr:ident $ty:ident) => {
+            #[inline]
+            #[target_feature(enable = "altivec")]
+            #[cfg_attr(test, assert_instr($fun))]
+            unsafe fn $fun(a: t_t_l!($ty), b: t_t_l!($ty)) -> t_t_l!($ty) {
+                let a = transmute(a);
+                let b = simd_rem(
+                    transmute(b),
+                    <t_t_s!($ty)>::splat(mem::size_of::<$ty>() as $ty * $ty::BITS as $ty),
+                );
+
+                transmute($intr(a, b))
+            }
+        };
+    }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSl<Other> {
+        type Result;
+        unsafe fn vec_sl(self, b: Other) -> Self::Result;
+    }
+
+    impl_shift! { vslb simd_shl u8 }
+    impl_shift! { vslh simd_shl u16 }
+    impl_shift! { vslw simd_shl u32 }
+
+    impl_vec_shift! { [VectorSl vec_sl] (vslb, vslh, vslw) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSr<Other> {
+        type Result;
+        unsafe fn vec_sr(self, b: Other) -> Self::Result;
+    }
+
+    impl_shift! { vsrb simd_shr u8 }
+    impl_shift! { vsrh simd_shr u16 }
+    impl_shift! { vsrw simd_shr u32 }
+
+    impl_vec_shift! { [VectorSr vec_sr] (vsrb, vsrh, vsrw) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSra<Other> {
+        type Result;
+        unsafe fn vec_sra(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_shift! { [VectorSra vec_sra] (vsrab, vsrah, vsraw) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSld {
+        unsafe fn vec_sld<const UIMM4: i32>(self, b: Self) -> Self;
+        unsafe fn vec_sldw<const UIMM2: i32>(self, b: Self) -> Self;
+    }
+
+    #[inline]
+    #[target_feature(enable = "altivec")]
+    #[cfg_attr(test, assert_instr(vsldoi, UIMM4 = 1))]
+    unsafe fn vsldoi<const UIMM4: i32>(
+        a: vector_unsigned_char,
+        b: vector_unsigned_char,
+    ) -> vector_unsigned_char {
+        static_assert_uimm_bits!(UIMM4, 4);
+        let d = UIMM4 as u8;
+        if cfg!(target_endian = "little") {
+            let perm = u8x16::new(
+                16 - d,
+                17 - d,
+                18 - d,
+                19 - d,
+                20 - d,
+                21 - d,
+                22 - d,
+                23 - d,
+                24 - d,
+                25 - d,
+                26 - d,
+                27 - d,
+                28 - d,
+                29 - d,
+                30 - d,
+                31 - d,
+            );
+
+            vec_perm(b, a, transmute(perm))
+        } else {
+            let perm = u8x16::new(
+                d,
+                d + 1,
+                d + 2,
+                d + 3,
+                d + 4,
+                d + 5,
+                d + 6,
+                d + 7,
+                d + 8,
+                d + 9,
+                d + 10,
+                d + 11,
+                d + 12,
+                d + 13,
+                d + 14,
+                d + 15,
+            );
+            vec_perm(a, b, transmute(perm))
+        }
+    }
+
+    // TODO: collapse the two once generic_const_exprs are usable.
+    #[inline]
+    #[target_feature(enable = "altivec")]
+    #[cfg_attr(test, assert_instr(xxsldwi, UIMM2 = 1))]
+    unsafe fn xxsldwi<const UIMM2: i32>(
+        a: vector_unsigned_char,
+        b: vector_unsigned_char,
+    ) -> vector_unsigned_char {
+        static_assert_uimm_bits!(UIMM2, 2);
+        let d = (UIMM2 << 2) as u8;
+        if cfg!(target_endian = "little") {
+            let perm = u8x16::new(
+                16 - d,
+                17 - d,
+                18 - d,
+                19 - d,
+                20 - d,
+                21 - d,
+                22 - d,
+                23 - d,
+                24 - d,
+                25 - d,
+                26 - d,
+                27 - d,
+                28 - d,
+                29 - d,
+                30 - d,
+                31 - d,
+            );
+
+            vec_perm(b, a, transmute(perm))
+        } else {
+            let perm = u8x16::new(
+                d,
+                d + 1,
+                d + 2,
+                d + 3,
+                d + 4,
+                d + 5,
+                d + 6,
+                d + 7,
+                d + 8,
+                d + 9,
+                d + 10,
+                d + 11,
+                d + 12,
+                d + 13,
+                d + 14,
+                d + 15,
+            );
+            vec_perm(a, b, transmute(perm))
+        }
+    }
+
+    macro_rules! impl_vec_sld {
+        ($($ty:ident),+) => { $(
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorSld for $ty {
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_sld<const UIMM4: i32>(self, b: Self) -> Self {
+                    transmute(vsldoi::<UIMM4>(transmute(self), transmute(b)))
+                }
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_sldw<const UIMM2: i32>(self, b: Self) -> Self {
+                    transmute(xxsldwi::<UIMM2>(transmute(self), transmute(b)))
+                }
+           }
+        )+ };
+    }
+
+    impl_vec_sld! { vector_bool_char, vector_signed_char, vector_unsigned_char }
+    impl_vec_sld! { vector_bool_short, vector_signed_short, vector_unsigned_short }
+    impl_vec_sld! { vector_bool_int, vector_signed_int, vector_unsigned_int }
+    impl_vec_sld! { vector_float }
+
+    macro_rules! impl_vec_shift_long {
+        ([$Trait:ident $m:ident] ($f:ident)) => {
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_char, vector_unsigned_char) -> vector_unsigned_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_char, vector_unsigned_char) -> vector_signed_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_short, vector_unsigned_char) -> vector_unsigned_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_short, vector_unsigned_char) -> vector_signed_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_int, vector_unsigned_char) -> vector_unsigned_int }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_int, vector_unsigned_char) -> vector_signed_int }
+        };
+    }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSll<Other> {
+        type Result;
+        unsafe fn vec_sll(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_shift_long! { [VectorSll vec_sll] (vsl) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSrl<Other> {
+        type Result;
+        unsafe fn vec_srl(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_shift_long! { [VectorSrl vec_srl] (vsr) }
+
+    macro_rules! impl_vec_shift_octect {
+        ([$Trait:ident $m:ident] ($f:ident)) => {
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_char, vector_signed_char) -> vector_unsigned_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_char, vector_signed_char) -> vector_signed_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_short, vector_signed_char) -> vector_unsigned_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_short, vector_signed_char) -> vector_signed_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_int, vector_signed_char) -> vector_unsigned_int }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_int, vector_signed_char) -> vector_signed_int }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_float, vector_signed_char) -> vector_float }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_char, vector_unsigned_char) -> vector_unsigned_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_char, vector_unsigned_char) -> vector_signed_char }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_short, vector_unsigned_char) -> vector_unsigned_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_short, vector_unsigned_char) -> vector_signed_short }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_unsigned_int, vector_unsigned_char) -> vector_unsigned_int }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_signed_int, vector_unsigned_char) -> vector_signed_int }
+            impl_vec_trait!{ [$Trait $m]+ $f (vector_float, vector_unsigned_char) -> vector_float }
+        };
+    }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSlo<Other> {
+        type Result;
+        unsafe fn vec_slo(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_shift_octect! { [VectorSlo vec_slo] (vslo) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSro<Other> {
+        type Result;
+        unsafe fn vec_sro(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_shift_octect! { [VectorSro vec_sro] (vsro) }
 }
 
 /// Vector Merge Low
@@ -2697,6 +3003,179 @@ where
     T: sealed::VectorUnpackl,
 {
     a.vec_unpackl()
+}
+
+/// Vector Shift Left
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sl<T, U>(a: T, b: U) -> <T as sealed::VectorSl<U>>::Result
+where
+    T: sealed::VectorSl<U>,
+{
+    a.vec_sl(b)
+}
+
+/// Vector Shift Right
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sr<T, U>(a: T, b: U) -> <T as sealed::VectorSr<U>>::Result
+where
+    T: sealed::VectorSr<U>,
+{
+    a.vec_sr(b)
+}
+
+/// Vector Shift Right Algebraic
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sra<T, U>(a: T, b: U) -> <T as sealed::VectorSra<U>>::Result
+where
+    T: sealed::VectorSra<U>,
+{
+    a.vec_sra(b)
+}
+
+/// Vector Shift Left Double
+///
+/// ## Endian considerations
+///
+/// This intrinsic is not endian-neutral, so uses of vec_sld in
+/// big-endian code must be rewritten for little-endian targets.
+///
+/// Historically, vec_sld could be used to shift by amounts not a multiple of the element size
+/// for most types, in which case the purpose of the shift is difficult to determine and difficult
+/// to automatically rewrite efficiently for little endian.
+///
+/// So the concatenation of a and b is done in big-endian fashion (left to right), and the shift is
+/// always to the left. This will generally produce surprising results for little-endian targets.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sld<T, const UIMM4: i32>(a: T, b: T) -> T
+where
+    T: sealed::VectorSld,
+{
+    a.vec_sld::<UIMM4>(b)
+}
+
+/// Vector Shift Left Double by Words
+///
+/// ## Endian considerations
+///
+/// This intrinsic is not endian-neutral, so uses of vec_sldw in
+/// big-endian code must be rewritten for little-endian targets.
+///
+/// The concatenation of a and b is done in big-endian fashion (left to right), and the shift is
+/// always to the left. This will generally produce surprising results for little- endian targets.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sldw<T, const UIMM2: i32>(a: T, b: T) -> T
+where
+    T: sealed::VectorSld,
+{
+    a.vec_sldw::<UIMM2>(b)
+}
+
+/// Vector Shift Left Long
+///
+/// ## Endian considerations
+/// This intrinsic is not endian-neutral, so uses of vec_sll in big-endian
+/// code must be rewritten for little-endian targets.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sll<T, U>(a: T, b: U) -> <T as sealed::VectorSll<U>>::Result
+where
+    T: sealed::VectorSll<U>,
+{
+    a.vec_sll(b)
+}
+
+/// Vector Shift Right Long
+///
+/// ## Endian considerations
+/// This intrinsic is not endian-neutral, so uses of vec_srl in big-endian
+/// code must be rewritten for little-endian targets.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_srl<T, U>(a: T, b: U) -> <T as sealed::VectorSrl<U>>::Result
+where
+    T: sealed::VectorSrl<U>,
+{
+    a.vec_srl(b)
+}
+
+/// Vector Shift Left by Octets
+///
+/// ## Endian considerations
+/// This intrinsic is not endian-neutral, so uses of vec_slo in big-endian code must be rewritten
+/// for little-endian targets. The shift count is in element 15 of b for big-endian, but in element
+/// 0 of b for little-endian.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_slo<T, U>(a: T, b: U) -> <T as sealed::VectorSlo<U>>::Result
+where
+    T: sealed::VectorSlo<U>,
+{
+    a.vec_slo(b)
+}
+
+/// Vector Shift Right by Octets
+///
+/// ## Endian considerations
+/// This intrinsic is not endian-neutral, so uses of vec_sro in big-endian code must be rewritten
+/// for little-endian targets. The shift count is in element 15 of b for big-endian, but in element
+/// 0 of b for little-endian.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sro<T, U>(a: T, b: U) -> <T as sealed::VectorSro<U>>::Result
+where
+    T: sealed::VectorSro<U>,
+{
+    a.vec_sro(b)
+}
+
+/// Vector Shift Left Variable
+///
+/// ## Result value
+/// Let v be a 17-byte vector formed from a in bytes `[0:15]` and a zero byte in element 16.
+/// Then each byte element i of r is determined as follows. The start bit sb is
+/// obtained from bits 5:7 of byte element i of b. Then the contents of bits sb:sb+7 of the
+/// halfword in byte elements i:i+1 of v are placed into byte element i of r.
+///
+/// ## Endian considerations
+/// All bit and byte element numbers are specified in big-endian order. This intrinsic is not
+/// endian-neutral.
+#[inline]
+#[target_feature(enable = "power9-altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_slv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char {
+    vslv(a, b)
+}
+
+/// Vector Shift Right Variable
+///
+/// ## Result value
+/// Let v be a 17-byte vector formed from a zero byte in element 0 and the elements of
+/// a in bytes `[1:16]`. Then each byte element i of r is determined as follows. The start bit sb is
+/// obtained from bits 5:7 of byte element i of b. Then the contents of bits (8 – sb):(15 – sb) of
+/// the halfword in byte elements i:i+1 of v are placed into byte element i of r.
+///
+/// ## Endian considerations
+/// All bit and byte element numbers are specified in big-endian order. This intrinsic is not
+/// endian-neutral.
+#[inline]
+#[target_feature(enable = "power9-altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_srv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char {
+    vsrv(a, b)
 }
 
 /// Vector Load Indexed.
