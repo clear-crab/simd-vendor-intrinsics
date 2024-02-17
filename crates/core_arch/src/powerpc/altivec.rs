@@ -75,6 +75,19 @@ extern "C" {
     #[link_name = "llvm.ppc.altivec.lvxl"]
     fn lvxl(p: *const i8) -> vector_unsigned_int;
 
+    #[link_name = "llvm.ppc.altivec.stvx"]
+    fn stvx(a: vector_signed_int, p: *const i8);
+
+    #[link_name = "llvm.ppc.altivec.stvebx"]
+    fn stvebx(a: vector_signed_char, p: *const i8);
+    #[link_name = "llvm.ppc.altivec.stvehx"]
+    fn stvehx(a: vector_signed_short, p: *const i8);
+    #[link_name = "llvm.ppc.altivec.stvewx"]
+    fn stvewx(a: vector_signed_int, p: *const i8);
+
+    #[link_name = "llvm.ppc.altivec.stvxl"]
+    fn stvxl(a: vector_signed_int, p: *const i8);
+
     #[link_name = "llvm.ppc.altivec.vperm"]
     fn vperm(
         a: vector_signed_int,
@@ -199,6 +212,9 @@ extern "C" {
     fn vsubuhs(a: vector_unsigned_short, b: vector_unsigned_short) -> vector_unsigned_short;
     #[link_name = "llvm.ppc.altivec.vsubuws"]
     fn vsubuws(a: vector_unsigned_int, b: vector_unsigned_int) -> vector_unsigned_int;
+
+    #[link_name = "llvm.ppc.altivec.vsubcuw"]
+    fn vsubcuw(a: vector_unsigned_int, b: vector_unsigned_int) -> vector_unsigned_int;
 
     #[link_name = "llvm.ppc.altivec.vaddcuw"]
     fn vaddcuw(a: vector_unsigned_int, b: vector_unsigned_int) -> vector_unsigned_int;
@@ -364,6 +380,23 @@ extern "C" {
     fn vslv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char;
     #[link_name = "llvm.ppc.altivec.srv"]
     fn vsrv(a: vector_unsigned_char, b: vector_unsigned_char) -> vector_unsigned_char;
+
+    #[link_name = "llvm.ctlz.v16i8"]
+    fn vclzb(a: vector_signed_char) -> vector_signed_char;
+    #[link_name = "llvm.ctlz.v8i16"]
+    fn vclzh(a: vector_signed_short) -> vector_signed_short;
+    #[link_name = "llvm.ctlz.v4i32"]
+    fn vclzw(a: vector_signed_int) -> vector_signed_int;
+
+    #[link_name = "llvm.ppc.altivec.vrlb"]
+    fn vrlb(a: vector_signed_char, b: vector_unsigned_char) -> vector_signed_char;
+    #[link_name = "llvm.ppc.altivec.vrlh"]
+    fn vrlh(a: vector_signed_short, b: vector_unsigned_short) -> vector_signed_short;
+    #[link_name = "llvm.ppc.altivec.vrlw"]
+    fn vrlw(a: vector_signed_int, c: vector_unsigned_int) -> vector_signed_int;
+
+    #[link_name = "llvm.ppc.altivec.vrfin"]
+    fn vrfin(a: vector_float) -> vector_float;
 }
 
 macro_rules! s_t_l {
@@ -441,6 +474,27 @@ macro_rules! t_t_s {
 
     (f32) => {
         f32x4
+    };
+}
+
+macro_rules! t_u {
+    (vector_unsigned_char) => {
+        vector_unsigned_char
+    };
+    (vector_unsigned_short) => {
+        vector_unsigned_short
+    };
+    (vector_unsigned_int) => {
+        vector_unsigned_int
+    };
+    (vector_signed_char) => {
+        vector_unsigned_char
+    };
+    (vector_signed_short) => {
+        vector_unsigned_short
+    };
+    (vector_signed_int) => {
+        vector_unsigned_int
     };
 }
 
@@ -534,8 +588,8 @@ mod sealed {
             #[inline]
             #[target_feature(enable = "altivec")]
             #[cfg_attr(test, assert_instr(lvxl))]
-            pub unsafe fn $fun_lru(off: i32, p: *const $ty) -> t_t_l!($ty) {
-                let addr = (p as *const i8).offset(off as isize);
+            pub unsafe fn $fun_lru(off: isize, p: *const $ty) -> t_t_l!($ty) {
+                let addr = (p as *const i8).offset(off);
                 transmute(lvxl(addr))
             }
 
@@ -550,7 +604,7 @@ mod sealed {
                 #[inline]
                 #[target_feature(enable = "altivec")]
                 unsafe fn vec_ldl(self, off: isize) -> Self::Result {
-                    $fun(off, self)
+                    $fun_lru(off, self)
                 }
             }
         };
@@ -605,6 +659,98 @@ mod sealed {
     impl_vec_lde! { vec_lde_i32 lvewx i32 }
 
     impl_vec_lde! { vec_lde_f32 lvewx f32 }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSt {
+        type Target;
+        unsafe fn vec_st(self, off: isize, p: Self::Target);
+        unsafe fn vec_stl(self, off: isize, p: Self::Target);
+    }
+
+    macro_rules! impl_vec_st {
+        ($fun:ident $fun_lru:ident $ty:ident) => {
+            #[inline]
+            #[target_feature(enable = "altivec")]
+            #[cfg_attr(test, assert_instr(stvx))]
+            pub unsafe fn $fun(a: t_t_l!($ty), off: isize, p: *const $ty) {
+                let addr = (p as *const i8).offset(off);
+                stvx(transmute(a), addr)
+            }
+
+            #[inline]
+            #[target_feature(enable = "altivec")]
+            #[cfg_attr(test, assert_instr(stvxl))]
+            pub unsafe fn $fun_lru(a: t_t_l!($ty), off: isize, p: *const $ty) {
+                let addr = (p as *const i8).offset(off as isize);
+                stvxl(transmute(a), addr)
+            }
+
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorSt for t_t_l!($ty) {
+                type Target = *const $ty;
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_st(self, off: isize, p: Self::Target) {
+                    $fun(self, off, p)
+                }
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_stl(self, off: isize, p: Self::Target) {
+                    $fun(self, off, p)
+                }
+            }
+        };
+    }
+
+    impl_vec_st! { vec_st_u8 vec_stl_u8 u8 }
+    impl_vec_st! { vec_st_i8 vec_stl_i8 i8 }
+
+    impl_vec_st! { vec_st_u16 vec_stl_u16 u16 }
+    impl_vec_st! { vec_st_i16 vec_stl_i16 i16 }
+
+    impl_vec_st! { vec_st_u32 vec_stl_u32 u32 }
+    impl_vec_st! { vec_st_i32 vec_stl_i32 i32 }
+
+    impl_vec_st! { vec_st_f32 vec_stl_f32 f32 }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSte {
+        type Target;
+        unsafe fn vec_ste(self, off: isize, p: Self::Target);
+    }
+
+    macro_rules! impl_vec_ste {
+        ($fun:ident $instr:ident $ty:ident) => {
+            #[inline]
+            #[target_feature(enable = "altivec")]
+            #[cfg_attr(test, assert_instr($instr))]
+            pub unsafe fn $fun(a: t_t_l!($ty), off: isize, p: *const $ty) {
+                let addr = (p as *const i8).offset(off);
+                $instr(transmute(a), addr)
+            }
+
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorSte for t_t_l!($ty) {
+                type Target = *const $ty;
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_ste(self, off: isize, p: Self::Target) {
+                    $fun(self, off, p)
+                }
+            }
+        };
+    }
+
+    impl_vec_ste! { vec_ste_u8 stvebx u8 }
+    impl_vec_ste! { vec_ste_i8 stvebx i8 }
+
+    impl_vec_ste! { vec_ste_u16 stvehx u16 }
+    impl_vec_ste! { vec_ste_i16 stvehx i16 }
+
+    impl_vec_ste! { vec_ste_u32 stvewx u32 }
+    impl_vec_ste! { vec_ste_i32 stvewx i32 }
+
+    impl_vec_ste! { vec_ste_f32 stvewx f32 }
 
     #[unstable(feature = "stdarch_powerpc", issue = "111145")]
     pub trait VectorXl {
@@ -1542,6 +1688,17 @@ mod sealed {
 
     impl_vec_trait! { [VectorSub vec_sub] ~(simd_sub, simd_sub, simd_sub, simd_sub, simd_sub, simd_sub) }
     impl_vec_trait! { [VectorSub vec_sub] simd_sub(vector_float, vector_float) -> vector_float }
+
+    test_impl! { vec_vsubcuw (a: vector_unsigned_int, b: vector_unsigned_int) -> vector_unsigned_int [vsubcuw, vsubcuw] }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSubc<Other> {
+        type Result;
+        unsafe fn vec_subc(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! {[VectorSubc vec_subc]+ vec_vsubcuw(vector_unsigned_int, vector_unsigned_int) -> vector_unsigned_int }
+    impl_vec_trait! {[VectorSubc vec_subc]+ vec_vsubcuw(vector_signed_int, vector_signed_int) -> vector_signed_int }
 
     test_impl! { vec_vminsb (a: vector_signed_char, b: vector_signed_char) -> vector_signed_char [vminsb, vminsb] }
     test_impl! { vec_vminsh (a: vector_signed_short, b: vector_signed_short) -> vector_signed_short [vminsh, vminsh] }
@@ -2985,6 +3142,82 @@ mod sealed {
     }
 
     impl_vec_shift_octect! { [VectorSro vec_sro] (vsro) }
+
+    test_impl! { vec_vcntlzb(a: vector_signed_char) -> vector_signed_char [vclzb, vclzb] }
+    test_impl! { vec_vcntlzh(a: vector_signed_short) -> vector_signed_short [vclzh, vclzh] }
+    test_impl! { vec_vcntlzw(a: vector_signed_int) -> vector_signed_int [vclzw, vclzw] }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorCntlz {
+        unsafe fn vec_cntlz(self) -> Self;
+    }
+
+    macro_rules! impl_vec_cntlz {
+        ($fun:ident ($a:ty)) => {
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorCntlz for $a {
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_cntlz(self) -> Self {
+                    transmute($fun(transmute(self)))
+                }
+            }
+        };
+    }
+
+    impl_vec_cntlz! { vec_vcntlzb(vector_signed_char) }
+    impl_vec_cntlz! { vec_vcntlzb(vector_unsigned_char) }
+    impl_vec_cntlz! { vec_vcntlzh(vector_signed_short) }
+    impl_vec_cntlz! { vec_vcntlzh(vector_unsigned_short) }
+    impl_vec_cntlz! { vec_vcntlzw(vector_signed_int) }
+    impl_vec_cntlz! { vec_vcntlzw(vector_unsigned_int) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorRl {
+        type B;
+        unsafe fn vec_rl(self, b: Self::B) -> Self;
+    }
+
+    macro_rules! impl_vec_rl {
+        ($fun:ident ($a:ident)) => {
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorRl for $a {
+                type B = t_u!($a);
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_rl(self, b: Self::B) -> Self {
+                    transmute($fun(transmute(self), b))
+                }
+            }
+        };
+    }
+
+    test_impl! { vec_vrlb(a: vector_signed_char, b: vector_unsigned_char) -> vector_signed_char [vrlb, vrlb] }
+    test_impl! { vec_vrlh(a: vector_signed_short, b: vector_unsigned_short) -> vector_signed_short [vrlh, vrlh] }
+    test_impl! { vec_vrlw(a: vector_signed_int, b: vector_unsigned_int) -> vector_signed_int [vrlw, vrlw] }
+
+    impl_vec_rl! { vec_vrlb(vector_signed_char) }
+    impl_vec_rl! { vec_vrlh(vector_signed_short) }
+    impl_vec_rl! { vec_vrlw(vector_signed_int) }
+    impl_vec_rl! { vec_vrlb(vector_unsigned_char) }
+    impl_vec_rl! { vec_vrlh(vector_unsigned_short) }
+    impl_vec_rl! { vec_vrlw(vector_unsigned_int) }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorRound {
+        unsafe fn vec_round(self) -> Self;
+    }
+
+    test_impl! { vec_vrfin(a: vector_float) -> vector_float [vrfin, vrfin] }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    impl VectorRound for vector_float {
+        #[inline]
+        #[target_feature(enable = "altivec")]
+        unsafe fn vec_round(self) -> Self {
+            vec_vrfin(self)
+        }
+    }
 }
 
 /// Vector Merge Low
@@ -3270,6 +3503,76 @@ where
     p.vec_lde(off)
 }
 
+/// Vector Store Indexed
+///
+/// ## Purpose
+/// Stores a 16-byte vector into memory at the address specified by a displacement and a
+/// pointer, ignoring the four low-order bits of the calculated address.
+///
+/// ## Operation
+/// A memory address is obtained by adding b and c, and masking off the four low-order
+/// bits of the result. The 16-byte vector in a is stored to the resultant memory address.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_st<T>(a: T, off: isize, c: <T as sealed::VectorSt>::Target)
+where
+    T: sealed::VectorSt,
+{
+    a.vec_st(off, c)
+}
+
+/// Vector Store Indexed Least Recently Used
+///
+/// ## Purpose
+/// Stores a 16-byte vector into memory at the address specified by a displacement and
+/// a pointer, ignoring the four low-order bits of the calculated address, and marking the cache
+/// line containing the address as least frequently used.
+///
+/// ## Operation
+/// A memory address is obtained by adding b and c, and masking off the four
+/// low-order bits of the result. The 16-byte vector in a is stored to the resultant memory
+/// address, and the containing cache line is marked as least frequently used.
+///
+/// ## Notes
+/// This intrinsic can be used to indicate the last access to a portion of memory, as a hint to the
+/// data cache controller that the associated cache line can be replaced without performance loss.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_stl<T>(a: T, off: isize, c: <T as sealed::VectorSt>::Target)
+where
+    T: sealed::VectorSt,
+{
+    a.vec_stl(off, c)
+}
+
+/// Vector Store Element Indexed
+///
+/// ## Purpose
+/// Stores a single element from a 16-byte vector into memory at the address specified by
+/// a displacement and a pointer, aligned to the element size.
+///
+/// ## Operation
+/// The integer value b is added to the pointer value c. The resulting address is
+/// rounded down to the nearest address that is a multiple of es, where es is 1 for char pointers,
+/// 2 for short pointers, and 4 for float or int pointers. An element offset eo is calculated by
+/// taking the resultant address modulo 16. The vector element of a at offset eo is stored to the
+/// resultant address.
+///
+/// ## Notes
+/// Be careful to note that the address (b+c) is aligned to an element boundary. Do not attempt
+/// to store unaligned data with this intrinsic.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_ste<T>(a: T, off: isize, c: <T as sealed::VectorSte>::Target)
+where
+    T: sealed::VectorSte,
+{
+    a.vec_ste(off, c)
+}
+
 /// VSX Unaligned Load
 #[inline]
 #[target_feature(enable = "altivec")]
@@ -3504,6 +3807,45 @@ where
     a.vec_abss()
 }
 
+/// Vector Rotate Left
+///
+/// ## Purpose
+/// Rotates each element of a vector left by a given number of bits.
+///
+/// ## Result value
+/// Each element of r is obtained by rotating the corresponding element of a left by
+/// the number of bits specified by the corresponding element of b.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_rl<T>(a: T, b: <T as sealed::VectorRl>::B) -> T
+where
+    T: sealed::VectorRl,
+{
+    a.vec_rl(b)
+}
+
+/// Vector Round
+///
+/// ## Purpose
+/// Returns a vector containing the rounded values of the corresponding elements of the
+/// source vector.
+///
+/// ## Result value
+/// Each element of r contains the value of the corresponding element of a, rounded
+/// to the nearest representable floating-point integer, using IEEE round-to-nearest
+/// rounding.
+/// The current floating-point rounding mode is ignored.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_round<T>(a: T) -> T
+where
+    T: sealed::VectorRound,
+{
+    a.vec_round()
+}
+
 /// Vector Splat
 #[inline]
 #[target_feature(enable = "altivec")]
@@ -3542,6 +3884,26 @@ where
     T: sealed::VectorSub<U>,
 {
     a.vec_sub(b)
+}
+
+/// Vector Subtract Carryout
+///
+/// ## Purpose
+/// Returns a vector wherein each element contains the carry produced by subtracting the
+/// corresponding elements of the two source vectors.
+///
+/// ## Result value
+/// The value of each element of r is the complement of the carry produced by subtract- ing the
+/// value of the corresponding element of b from the value of the corresponding element of a. The
+/// value is 0 if a borrow occurred, or 1 if no borrow occurred.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_subc<T, U>(a: T, b: U) -> <T as sealed::VectorSubc<U>>::Result
+where
+    T: sealed::VectorSubc<U>,
+{
+    a.vec_subc(b)
 }
 
 /// Vector subs.
@@ -4042,6 +4404,25 @@ pub unsafe fn vec_any_nlt(a: vector_float, b: vector_float) -> bool {
 #[unstable(feature = "stdarch_powerpc", issue = "111145")]
 pub unsafe fn vec_any_numeric(a: vector_float) -> bool {
     vcmpgefp_p(1, a, a) != 0
+}
+
+/// Vector Count Leading Zeros
+///
+/// ## Purpose
+/// Returns a vector containing the number of most-significant bits equal to zero of each
+/// corresponding element of the source vector.
+///
+/// ## Result value
+/// The value of each element of r is set to the number of leading zeros of the
+/// corresponding element of a.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_cntlz<T>(a: T) -> T
+where
+    T: sealed::VectorCntlz,
+{
+    a.vec_cntlz()
 }
 
 /// Any Element Out of Bounds
