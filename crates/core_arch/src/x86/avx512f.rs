@@ -1,8 +1,8 @@
 use crate::{
     arch::asm,
-    core_arch::{simd::*, simd_llvm::*, x86::*},
-    mem::{self, transmute},
-    ptr,
+    core_arch::{simd::*, x86::*},
+    intrinsics::simd::*,
+    mem, ptr,
 };
 
 // x86-32 wants to use a 32-bit address size, but asm! defaults to using the full
@@ -16023,7 +16023,7 @@ pub unsafe fn _mm512_setr_epi32(
     e1: i32,
     e0: i32,
 ) -> __m512i {
-    let r = i32x16(
+    let r = i32x16::new(
         e15, e14, e13, e12, e11, e10, e9, e8, e7, e6, e5, e4, e3, e2, e1, e0,
     );
     transmute(r)
@@ -16101,7 +16101,7 @@ pub unsafe fn _mm512_set_epi8(
     e1: i8,
     e0: i8,
 ) -> __m512i {
-    let r = i8x64(
+    let r = i8x64::new(
         e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19,
         e20, e21, e22, e23, e24, e25, e26, e27, e28, e29, e30, e31, e32, e33, e34, e35, e36, e37,
         e38, e39, e40, e41, e42, e43, e44, e45, e46, e47, e48, e49, e50, e51, e52, e53, e54, e55,
@@ -16150,7 +16150,7 @@ pub unsafe fn _mm512_set_epi16(
     e1: i16,
     e0: i16,
 ) -> __m512i {
-    let r = i16x32(
+    let r = i16x32::new(
         e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16, e17, e18, e19,
         e20, e21, e22, e23, e24, e25, e26, e27, e28, e29, e30, e31,
     );
@@ -25556,7 +25556,7 @@ pub unsafe fn _mm512_castsi512_pd(a: __m512i) -> __m512d {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(all(test, not(target_os = "windows")), assert_instr(vmovd))]
 pub unsafe fn _mm512_cvtsi512_si32(a: __m512i) -> i32 {
-    let extract: i32 = simd_extract(a.as_i32x16(), 0);
+    let extract: i32 = simd_extract!(a.as_i32x16(), 0);
     extract
 }
 
@@ -27999,6 +27999,15 @@ pub unsafe fn _mm_mask_testn_epi64_mask(k: __mmask8, a: __m128i, b: __m128i) -> 
 /// Store 512-bits (composed of 16 packed single-precision (32-bit) floating-point elements) from a into memory using a non-temporal memory hint. mem_addr must be aligned on a 64-byte boundary or a general-protection exception may be generated.
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_stream_ps&expand=5671)
+///
+/// # Safety of non-temporal stores
+///
+/// After using this intrinsic, but before any other access to the memory that this intrinsic
+/// mutates, a call to [`_mm_sfence`] must be performed by the thread that used the intrinsic. In
+/// particular, functions that call this intrinsic should generally call `_mm_sfence` before they
+/// return.
+///
+/// See [`_mm_sfence`] for details.
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
@@ -28011,6 +28020,15 @@ pub unsafe fn _mm512_stream_ps(mem_addr: *mut f32, a: __m512) {
 /// Store 512-bits (composed of 8 packed double-precision (64-bit) floating-point elements) from a into memory using a non-temporal memory hint. mem_addr must be aligned on a 64-byte boundary or a general-protection exception may be generated.
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_stream_pd&expand=5667)
+///
+/// # Safety of non-temporal stores
+///
+/// After using this intrinsic, but before any other access to the memory that this intrinsic
+/// mutates, a call to [`_mm_sfence`] must be performed by the thread that used the intrinsic. In
+/// particular, functions that call this intrinsic should generally call `_mm_sfence` before they
+/// return.
+///
+/// See [`_mm_sfence`] for details.
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
@@ -28023,6 +28041,15 @@ pub unsafe fn _mm512_stream_pd(mem_addr: *mut f64, a: __m512d) {
 /// Store 512-bits of integer data from a into memory using a non-temporal memory hint. mem_addr must be aligned on a 64-byte boundary or a general-protection exception may be generated.
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_stream_si512&expand=5675)
+///
+/// # Safety of non-temporal stores
+///
+/// After using this intrinsic, but before any other access to the memory that this intrinsic
+/// mutates, a call to [`_mm_sfence`] must be performed by the thread that used the intrinsic. In
+/// particular, functions that call this intrinsic should generally call `_mm_sfence` before they
+/// return.
+///
+/// See [`_mm_sfence`] for details.
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
@@ -34622,12 +34649,12 @@ pub unsafe fn _mm512_set_pd(
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vmovss))]
 pub unsafe fn _mm_mask_move_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -> __m128 {
-    let extractsrc: f32 = simd_extract(src, 0);
+    let extractsrc: f32 = simd_extract!(src, 0);
     let mut mov: f32 = extractsrc;
     if (k & 0b00000001) != 0 {
-        mov = simd_extract(b, 0);
+        mov = simd_extract!(b, 0);
     }
-    simd_insert(a, 0, mov)
+    simd_insert!(a, 0, mov)
 }
 
 /// Move the lower single-precision (32-bit) floating-point element from b to the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34640,9 +34667,9 @@ pub unsafe fn _mm_mask_move_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -
 pub unsafe fn _mm_maskz_move_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
     let mut mov: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        mov = simd_extract(b, 0);
+        mov = simd_extract!(b, 0);
     }
-    simd_insert(a, 0, mov)
+    simd_insert!(a, 0, mov)
 }
 
 /// Move the lower double-precision (64-bit) floating-point element from b to the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34653,12 +34680,12 @@ pub unsafe fn _mm_maskz_move_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vmovsd))]
 pub unsafe fn _mm_mask_move_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
-    let extractsrc: f64 = simd_extract(src, 0);
+    let extractsrc: f64 = simd_extract!(src, 0);
     let mut mov: f64 = extractsrc;
     if (k & 0b00000001) != 0 {
-        mov = simd_extract(b, 0);
+        mov = simd_extract!(b, 0);
     }
-    simd_insert(a, 0, mov)
+    simd_insert!(a, 0, mov)
 }
 
 /// Move the lower double-precision (64-bit) floating-point element from b to the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34671,9 +34698,9 @@ pub unsafe fn _mm_mask_move_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d
 pub unsafe fn _mm_maskz_move_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
     let mut mov: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        mov = simd_extract(b, 0);
+        mov = simd_extract!(b, 0);
     }
-    simd_insert(a, 0, mov)
+    simd_insert!(a, 0, mov)
 }
 
 /// Add the lower single-precision (32-bit) floating-point element in a and b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34684,14 +34711,14 @@ pub unsafe fn _mm_maskz_move_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d 
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vaddss))]
 pub unsafe fn _mm_mask_add_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -> __m128 {
-    let extractsrc: f32 = simd_extract(src, 0);
+    let extractsrc: f32 = simd_extract!(src, 0);
     let mut add: f32 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta + extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Add the lower single-precision (32-bit) floating-point element in a and b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34704,11 +34731,11 @@ pub unsafe fn _mm_mask_add_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) ->
 pub unsafe fn _mm_maskz_add_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
     let mut add: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta + extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Add the lower double-precision (64-bit) floating-point element in a and b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34719,14 +34746,14 @@ pub unsafe fn _mm_maskz_add_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vaddsd))]
 pub unsafe fn _mm_mask_add_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
-    let extractsrc: f64 = simd_extract(src, 0);
+    let extractsrc: f64 = simd_extract!(src, 0);
     let mut add: f64 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta + extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Add the lower double-precision (64-bit) floating-point element in a and b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34739,11 +34766,11 @@ pub unsafe fn _mm_mask_add_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d)
 pub unsafe fn _mm_maskz_add_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
     let mut add: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta + extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Subtract the lower single-precision (32-bit) floating-point element in b from the lower single-precision (32-bit) floating-point element in a, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34754,14 +34781,14 @@ pub unsafe fn _mm_maskz_add_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vsubss))]
 pub unsafe fn _mm_mask_sub_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -> __m128 {
-    let extractsrc: f32 = simd_extract(src, 0);
+    let extractsrc: f32 = simd_extract!(src, 0);
     let mut add: f32 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta - extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Subtract the lower single-precision (32-bit) floating-point element in b from the lower single-precision (32-bit) floating-point element in a, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34774,11 +34801,11 @@ pub unsafe fn _mm_mask_sub_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) ->
 pub unsafe fn _mm_maskz_sub_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
     let mut add: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta - extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Subtract the lower double-precision (64-bit) floating-point element in b from the lower double-precision (64-bit) floating-point element in a, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34789,14 +34816,14 @@ pub unsafe fn _mm_maskz_sub_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vsubsd))]
 pub unsafe fn _mm_mask_sub_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
-    let extractsrc: f64 = simd_extract(src, 0);
+    let extractsrc: f64 = simd_extract!(src, 0);
     let mut add: f64 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta - extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Subtract the lower double-precision (64-bit) floating-point element in b from the lower double-precision (64-bit) floating-point element in a, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34809,11 +34836,11 @@ pub unsafe fn _mm_mask_sub_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d)
 pub unsafe fn _mm_maskz_sub_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
     let mut add: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta - extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point element in a and b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34824,14 +34851,14 @@ pub unsafe fn _mm_maskz_sub_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vmulss))]
 pub unsafe fn _mm_mask_mul_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -> __m128 {
-    let extractsrc: f32 = simd_extract(src, 0);
+    let extractsrc: f32 = simd_extract!(src, 0);
     let mut add: f32 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta * extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point element in a and b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34844,11 +34871,11 @@ pub unsafe fn _mm_mask_mul_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) ->
 pub unsafe fn _mm_maskz_mul_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
     let mut add: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta * extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point element in a and b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34859,14 +34886,14 @@ pub unsafe fn _mm_maskz_mul_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vmulsd))]
 pub unsafe fn _mm_mask_mul_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
-    let extractsrc: f64 = simd_extract(src, 0);
+    let extractsrc: f64 = simd_extract!(src, 0);
     let mut add: f64 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta * extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point element in a and b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34879,11 +34906,11 @@ pub unsafe fn _mm_mask_mul_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d)
 pub unsafe fn _mm_maskz_mul_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
     let mut add: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta * extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Divide the lower single-precision (32-bit) floating-point element in a by the lower single-precision (32-bit) floating-point element in b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34894,14 +34921,14 @@ pub unsafe fn _mm_maskz_mul_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vdivss))]
 pub unsafe fn _mm_mask_div_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) -> __m128 {
-    let extractsrc: f32 = simd_extract(src, 0);
+    let extractsrc: f32 = simd_extract!(src, 0);
     let mut add: f32 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta / extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Divide the lower single-precision (32-bit) floating-point element in a by the lower single-precision (32-bit) floating-point element in b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -34914,11 +34941,11 @@ pub unsafe fn _mm_mask_div_ss(src: __m128, k: __mmask8, a: __m128, b: __m128) ->
 pub unsafe fn _mm_maskz_div_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
     let mut add: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         add = extracta / extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Divide the lower double-precision (64-bit) floating-point element in a by the lower double-precision (64-bit) floating-point element in b, store the result in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34929,14 +34956,14 @@ pub unsafe fn _mm_maskz_div_ss(k: __mmask8, a: __m128, b: __m128) -> __m128 {
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vdivsd))]
 pub unsafe fn _mm_mask_div_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
-    let extractsrc: f64 = simd_extract(src, 0);
+    let extractsrc: f64 = simd_extract!(src, 0);
     let mut add: f64 = extractsrc;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta / extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Divide the lower double-precision (64-bit) floating-point element in a by the lower double-precision (64-bit) floating-point element in b, store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -34949,11 +34976,11 @@ pub unsafe fn _mm_mask_div_sd(src: __m128d, k: __mmask8, a: __m128d, b: __m128d)
 pub unsafe fn _mm_maskz_div_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128d {
     let mut add: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         add = extracta / extractb;
     }
-    simd_insert(a, 0, add)
+    simd_insert!(a, 0, add)
 }
 
 /// Compare the lower single-precision (32-bit) floating-point elements in a and b, store the maximum value in the lower element of dst using writemask k (the element is copied from src when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -35904,13 +35931,13 @@ pub unsafe fn _mm_maskz_scalef_sd(k: __mmask8, a: __m128d, b: __m128d) -> __m128
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmadd213ss))]
 pub unsafe fn _mm_mask_fmadd_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -> __m128 {
-    let mut fmadd: f32 = simd_extract(a, 0);
+    let mut fmadd: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fmadd = vfmadd132ss(fmadd, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -35923,12 +35950,12 @@ pub unsafe fn _mm_mask_fmadd_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) ->
 pub unsafe fn _mm_maskz_fmadd_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -> __m128 {
     let mut fmadd: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fmadd = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.
@@ -35939,13 +35966,13 @@ pub unsafe fn _mm_maskz_fmadd_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmadd213ss))]
 pub unsafe fn _mm_mask3_fmadd_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -> __m128 {
-    let mut fmadd: f32 = simd_extract(c, 0);
+    let mut fmadd: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         fmadd = vfmadd132ss(extracta, extractb, fmadd, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fmadd)
+    simd_insert!(c, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -35956,13 +35983,13 @@ pub unsafe fn _mm_mask3_fmadd_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmadd213sd))]
 pub unsafe fn _mm_mask_fmadd_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d) -> __m128d {
-    let mut fmadd: f64 = simd_extract(a, 0);
+    let mut fmadd: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fmadd = vfmadd132sd(fmadd, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -35975,12 +36002,12 @@ pub unsafe fn _mm_mask_fmadd_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d)
 pub unsafe fn _mm_maskz_fmadd_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d) -> __m128d {
     let mut fmadd: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fmadd = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.
@@ -35991,13 +36018,13 @@ pub unsafe fn _mm_maskz_fmadd_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmadd213sd))]
 pub unsafe fn _mm_mask3_fmadd_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8) -> __m128d {
-    let mut fmadd: f64 = simd_extract(c, 0);
+    let mut fmadd: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         fmadd = vfmadd132sd(extracta, extractb, fmadd, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fmadd)
+    simd_insert!(c, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36008,14 +36035,14 @@ pub unsafe fn _mm_mask3_fmadd_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmsub213ss))]
 pub unsafe fn _mm_mask_fmsub_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -> __m128 {
-    let mut fmsub: f32 = simd_extract(a, 0);
+    let mut fmsub: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132ss(fmsub, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36028,13 +36055,13 @@ pub unsafe fn _mm_mask_fmsub_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) ->
 pub unsafe fn _mm_maskz_fmsub_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -> __m128 {
     let mut fmsub: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.
@@ -36045,14 +36072,14 @@ pub unsafe fn _mm_maskz_fmsub_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmsub213ss))]
 pub unsafe fn _mm_mask3_fmsub_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -> __m128 {
-    let mut fmsub: f32 = simd_extract(c, 0);
+    let mut fmsub: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         let extractc = -fmsub;
         fmsub = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fmsub)
+    simd_insert!(c, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36063,14 +36090,14 @@ pub unsafe fn _mm_mask3_fmsub_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmsub213sd))]
 pub unsafe fn _mm_mask_fmsub_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d) -> __m128d {
-    let mut fmsub: f64 = simd_extract(a, 0);
+    let mut fmsub: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132sd(fmsub, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36083,13 +36110,13 @@ pub unsafe fn _mm_mask_fmsub_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d)
 pub unsafe fn _mm_maskz_fmsub_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d) -> __m128d {
     let mut fmsub: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.
@@ -36100,14 +36127,14 @@ pub unsafe fn _mm_maskz_fmsub_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfmsub213sd))]
 pub unsafe fn _mm_mask3_fmsub_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8) -> __m128d {
-    let mut fmsub: f64 = simd_extract(c, 0);
+    let mut fmsub: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         let extractc = -fmsub;
         fmsub = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fmsub)
+    simd_insert!(c, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36118,14 +36145,14 @@ pub unsafe fn _mm_mask3_fmsub_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmadd213ss))]
 pub unsafe fn _mm_mask_fnmadd_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -> __m128 {
-    let mut fnmadd: f32 = simd_extract(a, 0);
+    let mut fnmadd: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmadd;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fnmadd = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36138,13 +36165,13 @@ pub unsafe fn _mm_mask_fnmadd_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -
 pub unsafe fn _mm_maskz_fnmadd_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -> __m128 {
     let mut fnmadd: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fnmadd = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.
@@ -36155,14 +36182,14 @@ pub unsafe fn _mm_maskz_fnmadd_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) 
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmadd213ss))]
 pub unsafe fn _mm_mask3_fnmadd_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -> __m128 {
-    let mut fnmadd: f32 = simd_extract(c, 0);
+    let mut fnmadd: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         fnmadd = vfmadd132ss(extracta, extractb, fnmadd, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fnmadd)
+    simd_insert!(c, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36173,14 +36200,14 @@ pub unsafe fn _mm_mask3_fnmadd_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) 
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmadd213sd))]
 pub unsafe fn _mm_mask_fnmadd_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d) -> __m128d {
-    let mut fnmadd: f64 = simd_extract(a, 0);
+    let mut fnmadd: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmadd;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fnmadd = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36193,13 +36220,13 @@ pub unsafe fn _mm_mask_fnmadd_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d
 pub unsafe fn _mm_maskz_fnmadd_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d) -> __m128d {
     let mut fnmadd: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fnmadd = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.
@@ -36210,14 +36237,14 @@ pub unsafe fn _mm_maskz_fnmadd_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmadd213sd))]
 pub unsafe fn _mm_mask3_fnmadd_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8) -> __m128d {
-    let mut fnmadd: f64 = simd_extract(c, 0);
+    let mut fnmadd: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         fnmadd = vfmadd132sd(extracta, extractb, fnmadd, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fnmadd)
+    simd_insert!(c, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36228,15 +36255,15 @@ pub unsafe fn _mm_mask3_fnmadd_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmsub213ss))]
 pub unsafe fn _mm_mask_fnmsub_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -> __m128 {
-    let mut fnmsub: f32 = simd_extract(a, 0);
+    let mut fnmsub: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmsub;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.
@@ -36249,14 +36276,14 @@ pub unsafe fn _mm_mask_fnmsub_ss(a: __m128, k: __mmask8, b: __m128, c: __m128) -
 pub unsafe fn _mm_maskz_fnmsub_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) -> __m128 {
     let mut fnmsub: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.
@@ -36267,15 +36294,15 @@ pub unsafe fn _mm_maskz_fnmsub_ss(k: __mmask8, a: __m128, b: __m128, c: __m128) 
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmsub213ss))]
 pub unsafe fn _mm_mask3_fnmsub_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) -> __m128 {
-    let mut fnmsub: f32 = simd_extract(c, 0);
+    let mut fnmsub: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         let extractc = -fnmsub;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fnmsub)
+    simd_insert!(c, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36286,15 +36313,15 @@ pub unsafe fn _mm_mask3_fnmsub_ss(a: __m128, b: __m128, c: __m128, k: __mmask8) 
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmsub213sd))]
 pub unsafe fn _mm_mask_fnmsub_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d) -> __m128d {
-    let mut fnmsub: f64 = simd_extract(a, 0);
+    let mut fnmsub: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmsub;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.
@@ -36307,14 +36334,14 @@ pub unsafe fn _mm_mask_fnmsub_sd(a: __m128d, k: __mmask8, b: __m128d, c: __m128d
 pub unsafe fn _mm_maskz_fnmsub_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128d) -> __m128d {
     let mut fnmsub: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.
@@ -36325,15 +36352,15 @@ pub unsafe fn _mm_maskz_fnmsub_sd(k: __mmask8, a: __m128d, b: __m128d, c: __m128
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 #[cfg_attr(test, assert_instr(vfnmsub213sd))]
 pub unsafe fn _mm_mask3_fnmsub_sd(a: __m128d, b: __m128d, c: __m128d, k: __mmask8) -> __m128d {
-    let mut fnmsub: f64 = simd_extract(c, 0);
+    let mut fnmsub: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         let extractc = -fnmsub;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, _MM_FROUND_CUR_DIRECTION);
     }
-    simd_insert(c, 0, fnmsub)
+    simd_insert!(c, 0, fnmsub)
 }
 
 /// Add the lower single-precision (32-bit) floating-point element in a and b, store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38090,11 +38117,11 @@ pub unsafe fn _mm_maskz_scalef_round_sd<const ROUNDING: i32>(
 #[rustc_legacy_const_generics(3)]
 pub unsafe fn _mm_fmadd_round_ss<const ROUNDING: i32>(a: __m128, b: __m128, c: __m128) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let extracta: f32 = simd_extract(a, 0);
-    let extractb: f32 = simd_extract(b, 0);
-    let extractc: f32 = simd_extract(c, 0);
+    let extracta: f32 = simd_extract!(a, 0);
+    let extractb: f32 = simd_extract!(b, 0);
+    let extractc: f32 = simd_extract!(c, 0);
     let r = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, r)
+    simd_insert!(a, 0, r)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38119,13 +38146,13 @@ pub unsafe fn _mm_mask_fmadd_round_ss<const ROUNDING: i32>(
     c: __m128,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fmadd: f32 = simd_extract(a, 0);
+    let mut fmadd: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fmadd = vfmadd132ss(fmadd, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38152,12 +38179,12 @@ pub unsafe fn _mm_maskz_fmadd_round_ss<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fmadd: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fmadd = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.\
@@ -38182,13 +38209,13 @@ pub unsafe fn _mm_mask3_fmadd_round_ss<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fmadd: f32 = simd_extract(c, 0);
+    let mut fmadd: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         fmadd = vfmadd132ss(extracta, extractb, fmadd, ROUNDING);
     }
-    simd_insert(c, 0, fmadd)
+    simd_insert!(c, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.\
@@ -38212,11 +38239,11 @@ pub unsafe fn _mm_fmadd_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let extracta: f64 = simd_extract(a, 0);
-    let extractb: f64 = simd_extract(b, 0);
-    let extractc: f64 = simd_extract(c, 0);
+    let extracta: f64 = simd_extract!(a, 0);
+    let extractb: f64 = simd_extract!(b, 0);
+    let extractc: f64 = simd_extract!(c, 0);
     let fmadd = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38241,13 +38268,13 @@ pub unsafe fn _mm_mask_fmadd_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fmadd: f64 = simd_extract(a, 0);
+    let mut fmadd: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fmadd = vfmadd132sd(fmadd, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38274,12 +38301,12 @@ pub unsafe fn _mm_maskz_fmadd_round_sd<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fmadd: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fmadd = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmadd)
+    simd_insert!(a, 0, fmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.\
@@ -38304,13 +38331,13 @@ pub unsafe fn _mm_mask3_fmadd_round_sd<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fmadd: f64 = simd_extract(c, 0);
+    let mut fmadd: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         fmadd = vfmadd132sd(extracta, extractb, fmadd, ROUNDING);
     }
-    simd_insert(c, 0, fmadd)
+    simd_insert!(c, 0, fmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38330,12 +38357,12 @@ pub unsafe fn _mm_mask3_fmadd_round_sd<const ROUNDING: i32>(
 #[rustc_legacy_const_generics(3)]
 pub unsafe fn _mm_fmsub_round_ss<const ROUNDING: i32>(a: __m128, b: __m128, c: __m128) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let extracta: f32 = simd_extract(a, 0);
-    let extractb: f32 = simd_extract(b, 0);
-    let extractc: f32 = simd_extract(c, 0);
+    let extracta: f32 = simd_extract!(a, 0);
+    let extractb: f32 = simd_extract!(b, 0);
+    let extractc: f32 = simd_extract!(c, 0);
     let extractc = -extractc;
     let fmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38360,14 +38387,14 @@ pub unsafe fn _mm_mask_fmsub_round_ss<const ROUNDING: i32>(
     c: __m128,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fmsub: f32 = simd_extract(a, 0);
+    let mut fmsub: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132ss(fmsub, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38394,13 +38421,13 @@ pub unsafe fn _mm_maskz_fmsub_round_ss<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fmsub: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.\
@@ -38425,14 +38452,14 @@ pub unsafe fn _mm_mask3_fmsub_round_ss<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fmsub: f32 = simd_extract(c, 0);
+    let mut fmsub: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
-        let extractb: f32 = simd_extract(b, 0);
+        let extracta: f32 = simd_extract!(a, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         let extractc = -fmsub;
         fmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(c, 0, fmsub)
+    simd_insert!(c, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.\
@@ -38456,12 +38483,12 @@ pub unsafe fn _mm_fmsub_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let extracta: f64 = simd_extract(a, 0);
-    let extractb: f64 = simd_extract(b, 0);
-    let extractc: f64 = simd_extract(c, 0);
+    let extracta: f64 = simd_extract!(a, 0);
+    let extractb: f64 = simd_extract!(b, 0);
+    let extractc: f64 = simd_extract!(c, 0);
     let extractc = -extractc;
     let fmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38486,14 +38513,14 @@ pub unsafe fn _mm_mask_fmsub_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fmsub: f64 = simd_extract(a, 0);
+    let mut fmsub: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132sd(fmsub, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38520,13 +38547,13 @@ pub unsafe fn _mm_maskz_fmsub_round_sd<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fmsub: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fmsub)
+    simd_insert!(a, 0, fmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.\
@@ -38551,14 +38578,14 @@ pub unsafe fn _mm_mask3_fmsub_round_sd<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fmsub: f64 = simd_extract(c, 0);
+    let mut fmsub: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
-        let extractb: f64 = simd_extract(b, 0);
+        let extracta: f64 = simd_extract!(a, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         let extractc = -fmsub;
         fmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(c, 0, fmsub)
+    simd_insert!(c, 0, fmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38578,12 +38605,12 @@ pub unsafe fn _mm_mask3_fmsub_round_sd<const ROUNDING: i32>(
 #[rustc_legacy_const_generics(3)]
 pub unsafe fn _mm_fnmadd_round_ss<const ROUNDING: i32>(a: __m128, b: __m128, c: __m128) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let extracta: f32 = simd_extract(a, 0);
+    let extracta: f32 = simd_extract!(a, 0);
     let extracta = -extracta;
-    let extractb: f32 = simd_extract(b, 0);
-    let extractc: f32 = simd_extract(c, 0);
+    let extractb: f32 = simd_extract!(b, 0);
+    let extractc: f32 = simd_extract!(c, 0);
     let fnmadd = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38608,14 +38635,14 @@ pub unsafe fn _mm_mask_fnmadd_round_ss<const ROUNDING: i32>(
     c: __m128,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fnmadd: f32 = simd_extract(a, 0);
+    let mut fnmadd: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmadd;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fnmadd = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38642,13 +38669,13 @@ pub unsafe fn _mm_maskz_fnmadd_round_ss<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fnmadd: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         fnmadd = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.\
@@ -38673,14 +38700,14 @@ pub unsafe fn _mm_mask3_fnmadd_round_ss<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fnmadd: f32 = simd_extract(c, 0);
+    let mut fnmadd: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         fnmadd = vfmadd132ss(extracta, extractb, fnmadd, ROUNDING);
     }
-    simd_insert(c, 0, fnmadd)
+    simd_insert!(c, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.\
@@ -38704,12 +38731,12 @@ pub unsafe fn _mm_fnmadd_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let extracta: f64 = simd_extract(a, 0);
+    let extracta: f64 = simd_extract!(a, 0);
     let extracta = -extracta;
-    let extractb: f64 = simd_extract(b, 0);
-    let extractc: f64 = simd_extract(c, 0);
+    let extractb: f64 = simd_extract!(b, 0);
+    let extractc: f64 = simd_extract!(c, 0);
     let fnmadd = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from a when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38734,14 +38761,14 @@ pub unsafe fn _mm_mask_fnmadd_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fnmadd: f64 = simd_extract(a, 0);
+    let mut fnmadd: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmadd;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fnmadd = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38768,13 +38795,13 @@ pub unsafe fn _mm_maskz_fnmadd_round_sd<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fnmadd: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         fnmadd = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmadd)
+    simd_insert!(a, 0, fnmadd)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and add the negated intermediate result to the lower element in c. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.\
@@ -38799,14 +38826,14 @@ pub unsafe fn _mm_mask3_fnmadd_round_sd<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fnmadd: f64 = simd_extract(c, 0);
+    let mut fnmadd: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         fnmadd = vfmadd132sd(extracta, extractb, fnmadd, ROUNDING);
     }
-    simd_insert(c, 0, fnmadd)
+    simd_insert!(c, 0, fnmadd)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, subtract the lower element in c from the negated intermediate result, store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38826,13 +38853,13 @@ pub unsafe fn _mm_mask3_fnmadd_round_sd<const ROUNDING: i32>(
 #[rustc_legacy_const_generics(3)]
 pub unsafe fn _mm_fnmsub_round_ss<const ROUNDING: i32>(a: __m128, b: __m128, c: __m128) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let extracta: f32 = simd_extract(a, 0);
+    let extracta: f32 = simd_extract!(a, 0);
     let extracta = -extracta;
-    let extractb: f32 = simd_extract(b, 0);
-    let extractc: f32 = simd_extract(c, 0);
+    let extractb: f32 = simd_extract!(b, 0);
+    let extractc: f32 = simd_extract!(c, 0);
     let extractc = -extractc;
     let fnmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38857,15 +38884,15 @@ pub unsafe fn _mm_mask_fnmsub_round_ss<const ROUNDING: i32>(
     c: __m128,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fnmsub: f32 = simd_extract(a, 0);
+    let mut fnmsub: f32 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmsub;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper 3 packed elements from a to the upper elements of dst.\
@@ -38892,14 +38919,14 @@ pub unsafe fn _mm_maskz_fnmsub_round_ss<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fnmsub: f32 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
-        let extractc: f32 = simd_extract(c, 0);
+        let extractb: f32 = simd_extract!(b, 0);
+        let extractc: f32 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower single-precision (32-bit) floating-point elements in a and b, subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper 3 packed elements from c to the upper elements of dst.\
@@ -38924,15 +38951,15 @@ pub unsafe fn _mm_mask3_fnmsub_round_ss<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128 {
     static_assert_rounding!(ROUNDING);
-    let mut fnmsub: f32 = simd_extract(c, 0);
+    let mut fnmsub: f32 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f32 = simd_extract(a, 0);
+        let extracta: f32 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f32 = simd_extract(b, 0);
+        let extractb: f32 = simd_extract!(b, 0);
         let extractc = -fnmsub;
         fnmsub = vfmadd132ss(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(c, 0, fnmsub)
+    simd_insert!(c, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.\
@@ -38956,13 +38983,13 @@ pub unsafe fn _mm_fnmsub_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let extracta: f64 = simd_extract(a, 0);
+    let extracta: f64 = simd_extract!(a, 0);
     let extracta = -extracta;
-    let extractb: f64 = simd_extract(b, 0);
-    let extractc: f64 = simd_extract(c, 0);
+    let extractb: f64 = simd_extract!(b, 0);
+    let extractc: f64 = simd_extract!(c, 0);
     let extractc = -extractc;
     let fnmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -38987,15 +39014,15 @@ pub unsafe fn _mm_mask_fnmsub_round_sd<const ROUNDING: i32>(
     c: __m128d,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fnmsub: f64 = simd_extract(a, 0);
+    let mut fnmsub: f64 = simd_extract!(a, 0);
     if (k & 0b00000001) != 0 {
         let extracta = -fnmsub;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in dst using zeromask k (the element is zeroed out when mask bit 0 is not set), and copy the upper element from a to the upper element of dst.\
@@ -39022,14 +39049,14 @@ pub unsafe fn _mm_maskz_fnmsub_round_sd<const ROUNDING: i32>(
     static_assert_rounding!(ROUNDING);
     let mut fnmsub: f64 = 0.;
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
-        let extractc: f64 = simd_extract(c, 0);
+        let extractb: f64 = simd_extract!(b, 0);
+        let extractc: f64 = simd_extract!(c, 0);
         let extractc = -extractc;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(a, 0, fnmsub)
+    simd_insert!(a, 0, fnmsub)
 }
 
 /// Multiply the lower double-precision (64-bit) floating-point elements in a and b, and subtract the lower element in c from the negated intermediate result. Store the result in the lower element of dst using writemask k (the element is copied from c when mask bit 0 is not set), and copy the upper element from c to the upper element of dst.\
@@ -39054,15 +39081,15 @@ pub unsafe fn _mm_mask3_fnmsub_round_sd<const ROUNDING: i32>(
     k: __mmask8,
 ) -> __m128d {
     static_assert_rounding!(ROUNDING);
-    let mut fnmsub: f64 = simd_extract(c, 0);
+    let mut fnmsub: f64 = simd_extract!(c, 0);
     if (k & 0b00000001) != 0 {
-        let extracta: f64 = simd_extract(a, 0);
+        let extracta: f64 = simd_extract!(a, 0);
         let extracta = -extracta;
-        let extractb: f64 = simd_extract(b, 0);
+        let extractb: f64 = simd_extract!(b, 0);
         let extractc = -fnmsub;
         fnmsub = vfmadd132sd(extracta, extractb, extractc, ROUNDING);
     }
-    simd_insert(c, 0, fnmsub)
+    simd_insert!(c, 0, fnmsub)
 }
 
 /// Fix up the lower single-precision (32-bit) floating-point elements in a and b using the lower 32-bit integer in c, store the result in the lower element of dst, and copy the upper 3 packed elements from a to the upper elements of dst. imm8 is used to set the required flags reporting.
@@ -39079,8 +39106,8 @@ pub unsafe fn _mm_fixupimm_ss<const IMM8: i32>(a: __m128, b: __m128, c: __m128i)
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let r = vfixupimmss(a, b, c, IMM8, 0b11111111, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f32 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39103,8 +39130,8 @@ pub unsafe fn _mm_mask_fixupimm_ss<const IMM8: i32>(
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let fixupimm = vfixupimmss(a, b, c, IMM8, k, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f32 = simd_extract(fixupimm, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(fixupimm, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39127,8 +39154,8 @@ pub unsafe fn _mm_maskz_fixupimm_ss<const IMM8: i32>(
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let fixupimm = vfixupimmssz(a, b, c, IMM8, k, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f32 = simd_extract(fixupimm, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(fixupimm, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39146,8 +39173,8 @@ pub unsafe fn _mm_fixupimm_sd<const IMM8: i32>(a: __m128d, b: __m128d, c: __m128
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let fixupimm = vfixupimmsd(a, b, c, IMM8, 0b11111111, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f64 = simd_extract(fixupimm, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(fixupimm, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39170,8 +39197,8 @@ pub unsafe fn _mm_mask_fixupimm_sd<const IMM8: i32>(
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let fixupimm = vfixupimmsd(a, b, c, IMM8, k, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f64 = simd_extract(fixupimm, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(fixupimm, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39194,8 +39221,8 @@ pub unsafe fn _mm_maskz_fixupimm_sd<const IMM8: i32>(
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let fixupimm = vfixupimmsdz(a, b, c, IMM8, k, _MM_FROUND_CUR_DIRECTION);
-    let fixupimm: f64 = simd_extract(fixupimm, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(fixupimm, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39219,8 +39246,8 @@ pub unsafe fn _mm_fixupimm_round_ss<const IMM8: i32, const SAE: i32>(
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let r = vfixupimmss(a, b, c, IMM8, 0b11111111, SAE);
-    let fixupimm: f32 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39245,8 +39272,8 @@ pub unsafe fn _mm_mask_fixupimm_round_ss<const IMM8: i32, const SAE: i32>(
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let r = vfixupimmss(a, b, c, IMM8, k, SAE);
-    let fixupimm: f32 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39271,8 +39298,8 @@ pub unsafe fn _mm_maskz_fixupimm_round_ss<const IMM8: i32, const SAE: i32>(
     let b = b.as_f32x4();
     let c = c.as_i32x4();
     let r = vfixupimmssz(a, b, c, IMM8, k, SAE);
-    let fixupimm: f32 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f32 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39296,8 +39323,8 @@ pub unsafe fn _mm_fixupimm_round_sd<const IMM8: i32, const SAE: i32>(
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let r = vfixupimmsd(a, b, c, IMM8, 0b11111111, SAE);
-    let fixupimm: f64 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39322,8 +39349,8 @@ pub unsafe fn _mm_mask_fixupimm_round_sd<const IMM8: i32, const SAE: i32>(
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let r = vfixupimmsd(a, b, c, IMM8, k, SAE);
-    let fixupimm: f64 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39348,8 +39375,8 @@ pub unsafe fn _mm_maskz_fixupimm_round_sd<const IMM8: i32, const SAE: i32>(
     let b = b.as_f64x2();
     let c = c.as_i64x2();
     let r = vfixupimmsdz(a, b, c, IMM8, k, SAE);
-    let fixupimm: f64 = simd_extract(r, 0);
-    let r = simd_insert(a, 0, fixupimm);
+    let fixupimm: f64 = simd_extract!(r, 0);
+    let r = simd_insert!(a, 0, fixupimm);
     transmute(r)
 }
 
@@ -39800,7 +39827,7 @@ pub unsafe fn _mm_cvt_roundu32_ss<const ROUNDING: i32>(a: __m128, b: u32) -> __m
 #[cfg_attr(test, assert_instr(vcvtsi2ss))]
 pub unsafe fn _mm_cvti32_ss(a: __m128, b: i32) -> __m128 {
     let b = b as f32;
-    simd_insert(a, 0, b)
+    simd_insert!(a, 0, b)
 }
 
 /// Convert the signed 32-bit integer b to a double-precision (64-bit) floating-point element, store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.
@@ -39812,7 +39839,7 @@ pub unsafe fn _mm_cvti32_ss(a: __m128, b: i32) -> __m128 {
 #[cfg_attr(test, assert_instr(vcvtsi2sd))]
 pub unsafe fn _mm_cvti32_sd(a: __m128d, b: i32) -> __m128d {
     let b = b as f64;
-    simd_insert(a, 0, b)
+    simd_insert!(a, 0, b)
 }
 
 /// Convert the lower single-precision (32-bit) floating-point element in a to a 32-bit integer with truncation, and store the result in dst.\
@@ -39958,7 +39985,7 @@ pub unsafe fn _mm_cvttsd_u32(a: __m128d) -> u32 {
 #[cfg_attr(test, assert_instr(vcvtusi2ss))]
 pub unsafe fn _mm_cvtu32_ss(a: __m128, b: u32) -> __m128 {
     let b = b as f32;
-    simd_insert(a, 0, b)
+    simd_insert!(a, 0, b)
 }
 
 /// Convert the unsigned 32-bit integer b to a double-precision (64-bit) floating-point element, store the result in the lower element of dst, and copy the upper element from a to the upper element of dst.
@@ -39970,7 +39997,7 @@ pub unsafe fn _mm_cvtu32_ss(a: __m128, b: u32) -> __m128 {
 #[cfg_attr(test, assert_instr(vcvtusi2sd))]
 pub unsafe fn _mm_cvtu32_sd(a: __m128d, b: u32) -> __m128d {
     let b = b as f64;
-    simd_insert(a, 0, b)
+    simd_insert!(a, 0, b)
 }
 
 /// Compare the lower single-precision (32-bit) floating-point element in a and b based on the comparison operand specified by imm8, and return the boolean result (0 or 1).\

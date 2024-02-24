@@ -1,8 +1,8 @@
 use crate::{
     arch::asm,
-    core_arch::{simd::*, simd_llvm::*, x86::*},
-    mem::{self, transmute},
-    ptr,
+    core_arch::{simd::*, x86::*},
+    intrinsics::simd::*,
+    mem, ptr,
 };
 
 #[cfg(test)]

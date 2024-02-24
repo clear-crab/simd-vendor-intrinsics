@@ -13,11 +13,7 @@
 
 #![allow(non_camel_case_types)]
 
-use crate::{
-    core_arch::{simd::*, simd_llvm::*},
-    mem,
-    mem::transmute,
-};
+use crate::{core_arch::simd::*, intrinsics::simd::*, mem, mem::transmute};
 
 #[cfg(test)]
 use stdarch_test::assert_instr;
@@ -478,6 +474,15 @@ macro_rules! t_t_s {
 }
 
 macro_rules! t_u {
+    (vector_bool_char) => {
+        vector_unsigned_char
+    };
+    (vector_bool_short) => {
+        vector_unsigned_short
+    };
+    (vector_bool_int) => {
+        vector_unsigned_int
+    };
     (vector_unsigned_char) => {
         vector_unsigned_char
     };
@@ -495,6 +500,42 @@ macro_rules! t_u {
     };
     (vector_signed_int) => {
         vector_unsigned_int
+    };
+    (vector_float) => {
+        vector_unsigned_int
+    };
+}
+
+macro_rules! t_b {
+    (vector_bool_char) => {
+        vector_bool_char
+    };
+    (vector_bool_short) => {
+        vector_bool_short
+    };
+    (vector_bool_int) => {
+        vector_bool_int
+    };
+    (vector_signed_char) => {
+        vector_bool_char
+    };
+    (vector_signed_short) => {
+        vector_bool_short
+    };
+    (vector_signed_int) => {
+        vector_bool_int
+    };
+    (vector_unsigned_char) => {
+        vector_bool_char
+    };
+    (vector_unsigned_short) => {
+        vector_bool_short
+    };
+    (vector_unsigned_int) => {
+        vector_bool_int
+    };
+    (vector_float) => {
+        vector_bool_int
     };
 }
 
@@ -2547,6 +2588,87 @@ mod sealed {
 
     impl_vec_trait! { [VectorNor vec_nor]+ 2b (vec_vnorsb, vec_vnorsh, vec_vnorsw) }
 
+    macro_rules! vector_vnand {
+        ($fun:ident $ty:ident) => {
+            #[inline]
+            #[target_feature(enable = "altivec")]
+            #[cfg_attr(all(test, not(target_feature = "vsx")), assert_instr(vnand))]
+            #[cfg_attr(all(test, target_feature = "vsx"), assert_instr(xxlnand))]
+            pub unsafe fn $fun(a: t_t_l!($ty), b: t_t_l!($ty)) -> t_t_l!($ty) {
+                let o = vec_splats(!0 as $ty);
+                vec_xor(vec_and(a, b), o)
+            }
+        };
+    }
+
+    vector_vnand! { vec_vnandsb i8 }
+    vector_vnand! { vec_vnandsh i16 }
+    vector_vnand! { vec_vnandsw i32 }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorNand<Other> {
+        type Result;
+        unsafe fn vec_nand(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorNand vec_nand]+ 2b (vec_vnandsb, vec_vnandsh, vec_vnandsw) }
+
+    #[inline]
+    #[target_feature(enable = "altivec")]
+    #[cfg_attr(all(test, not(target_feature = "vsx")), assert_instr(vsel))]
+    #[cfg_attr(all(test, target_feature = "vsx"), assert_instr(xxsel))]
+    pub unsafe fn vec_vsel(
+        a: vector_signed_char,
+        b: vector_signed_char,
+        c: vector_signed_char,
+    ) -> vector_signed_char {
+        let a: i8x16 = transmute(a);
+        let b: i8x16 = transmute(b);
+        let c: i8x16 = transmute(c);
+        let not_c = simd_xor(c, i8x16::splat(!0));
+
+        transmute(simd_or(simd_and(a, not_c), simd_and(b, c)))
+    }
+
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorSel<Mask> {
+        unsafe fn vec_sel(self, b: Self, c: Mask) -> Self;
+    }
+
+    macro_rules! vector_sel {
+        ($ty: ty, $m: ty) => {
+            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+            impl VectorSel<$m> for $ty {
+                #[inline]
+                #[target_feature(enable = "altivec")]
+                unsafe fn vec_sel(self, b: Self, c: $m) -> Self {
+                    let a = transmute(self);
+                    let b = transmute(b);
+                    let c = transmute(c);
+
+                    transmute(vec_vsel(a, b, c))
+                }
+            }
+        };
+        ($ty: ident) => {
+            vector_sel! { $ty, t_b!{ $ty } }
+            vector_sel! { $ty, t_u!{ $ty } }
+            vector_sel! { t_u!{ $ty }, t_b!{ $ty } }
+            vector_sel! { t_u!{ $ty }, t_u!{ $ty } }
+            vector_sel! { t_b!{ $ty }, t_b!{ $ty } }
+            vector_sel! { t_b!{ $ty }, t_u!{ $ty } }
+        };
+        (- $ty: ident) => {
+            vector_sel! { $ty, t_b!{ $ty } }
+            vector_sel! { $ty, t_u!{ $ty } }
+        };
+    }
+
+    vector_sel! { vector_signed_char }
+    vector_sel! { vector_signed_short }
+    vector_sel! { vector_signed_int }
+    vector_sel! {- vector_float }
+
     #[inline]
     #[target_feature(enable = "altivec")]
     #[cfg_attr(test, assert_instr(vcfsx, IMM5 = 1))]
@@ -3744,6 +3866,23 @@ where
     a.vec_or(b)
 }
 
+/// Vector NAND
+///
+/// ## Purpose
+/// Performs a bitwise NAND of two vectors.
+///
+/// ## Result value
+/// r is the bitwise NAND of a and b.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_nand<T, U>(a: T, b: U) -> <T as sealed::VectorNand<U>>::Result
+where
+    T: sealed::VectorNand<U>,
+{
+    a.vec_nand(b)
+}
+
 /// Vector nor.
 #[inline]
 #[target_feature(enable = "altivec")]
@@ -4144,6 +4283,25 @@ pub unsafe fn vec_madd(a: vector_float, b: vector_float, c: vector_float) -> vec
 #[unstable(feature = "stdarch_powerpc", issue = "111145")]
 pub unsafe fn vec_nmsub(a: vector_float, b: vector_float, c: vector_float) -> vector_float {
     vnmsubfp(a, b, c)
+}
+
+/// Vector Select
+///
+/// ## Purpose
+/// Returns a vector selecting bits from two source vectors depending on the corresponding
+/// bit values of a third source vector.
+///
+/// ## Result value
+/// Each bit of r has the value of the corresponding bit of a if the corresponding
+/// bit of c is 0. Otherwise, the bit of r has the value of the corresponding bit of b.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_sel<T, U>(a: T, b: T, c: U) -> T
+where
+    T: sealed::VectorSel<U>,
+{
+    a.vec_sel(b, c)
 }
 
 /// Vector Sum Across Partial (1/4) Saturated

@@ -66,13 +66,23 @@ macro_rules! types {
 #[allow(unused)]
 macro_rules! simd_shuffle {
     ($x:expr, $y:expr, $idx:expr $(,)?) => {{
-        simd_shuffle(
-            $x,
-            $y,
-            const {
-                let v: [u32; _] = $idx;
-                v
-            },
-        )
+        simd_shuffle::<_, [u32; _], _>($x, $y, const { $idx })
+    }};
+}
+
+#[allow(unused)]
+macro_rules! simd_insert {
+    ($x:expr, $idx:expr, $val:expr $(,)?) => {{
+        simd_insert($x, const { $idx }, $val)
+    }};
+}
+
+#[allow(unused)]
+macro_rules! simd_extract {
+    ($x:expr, $idx:expr $(,)?) => {{
+        simd_extract($x, const { $idx })
+    }};
+    ($x:expr, $idx:expr, $ty:ty $(,)?) => {{
+        simd_extract::<_, $ty>($x, const { $idx })
     }};
 }

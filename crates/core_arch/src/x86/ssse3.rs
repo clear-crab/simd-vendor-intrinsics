@@ -1,8 +1,8 @@
 //! Supplemental Streaming SIMD Extensions 3 (SSSE3)
 
 use crate::{
-    core_arch::{simd::*, simd_llvm::*, x86::*},
-    mem::transmute,
+    core_arch::{simd::*, x86::*},
+    intrinsics::simd::*,
 };
 
 #[cfg(test)]
