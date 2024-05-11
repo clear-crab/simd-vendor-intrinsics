@@ -1293,31 +1293,25 @@ mod sealed {
         unsafe fn vec_andc(self, b: Other) -> Self::Result;
     }
 
-    macro_rules! impl_vec_andc {
-        (($a:ty, $b:ty) -> $r:ty) => {
-            #[unstable(feature = "stdarch_powerpc", issue = "111145")]
-            impl VectorAndc<$b> for $a {
-                type Result = $r;
-                #[inline]
-                #[target_feature(enable = "altivec")]
-                unsafe fn vec_andc(self, b: $b) -> Self::Result {
-                    transmute(andc(transmute(self), transmute(b)))
-                }
-            }
-        };
-        (($a:ty, ~$b:ty) -> $r:ty) => {
-            impl_vec_andc! { ($a, $a) -> $r }
-            impl_vec_andc! { ($a, $b) -> $r }
-            impl_vec_andc! { ($b, $a) -> $r }
-        };
+    impl_vec_trait! { [VectorAndc vec_andc]+ 2b (andc) }
+
+    #[inline]
+    #[target_feature(enable = "altivec")]
+    #[cfg_attr(all(test, not(target_feature = "vsx")), assert_instr(vorc))]
+    #[cfg_attr(all(test, target_feature = "vsx"), assert_instr(xxlorc))]
+    unsafe fn orc(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a = transmute(a);
+        let b = transmute(b);
+        transmute(simd_or(simd_xor(u8x16::splat(0xff), b), a))
     }
 
-    impl_vec_andc! { (vector_unsigned_char, ~vector_bool_char) -> vector_unsigned_char }
-    impl_vec_andc! { (vector_signed_char, ~vector_bool_char) -> vector_signed_char }
-    impl_vec_andc! { (vector_unsigned_short, ~vector_bool_short) -> vector_unsigned_short }
-    impl_vec_andc! { (vector_signed_short, ~vector_bool_short) -> vector_signed_short }
-    impl_vec_andc! { (vector_unsigned_int, ~vector_bool_int) -> vector_unsigned_int }
-    impl_vec_andc! { (vector_signed_int, ~vector_bool_int) -> vector_signed_int }
+    #[unstable(feature = "stdarch_powerpc", issue = "111145")]
+    pub trait VectorOrc<Other> {
+        type Result;
+        unsafe fn vec_orc(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorOrc vec_orc]+ 2b (orc) }
 
     test_impl! { vec_vand(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char [ simd_and, vand / xxland ] }
 
@@ -3725,6 +3719,23 @@ where
     T: sealed::VectorAndc<U>,
 {
     a.vec_andc(b)
+}
+
+/// Vector OR with Complement
+///
+/// ## Purpose
+/// Performs a bitwise OR of the first vector with the bitwise-complemented second vector.
+///
+/// ## Result value
+/// r is the bitwise OR of a and the bitwise complement of b.
+#[inline]
+#[target_feature(enable = "altivec")]
+#[unstable(feature = "stdarch_powerpc", issue = "111145")]
+pub unsafe fn vec_orc<T, U>(a: T, b: U) -> <T as sealed::VectorOrc<U>>::Result
+where
+    T: sealed::VectorOrc<U>,
+{
+    a.vec_orc(b)
 }
 
 /// Vector and.
