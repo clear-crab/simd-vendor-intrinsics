@@ -441,7 +441,7 @@ pub unsafe fn _mm256_floor_ps(a: __m256) -> __m256 {
 #[cfg_attr(test, assert_instr(vsqrtps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm256_sqrt_ps(a: __m256) -> __m256 {
-    sqrtps256(a)
+    simd_fsqrt(a)
 }
 
 /// Returns the square root of packed double-precision (64-bit) floating point
@@ -1718,7 +1718,12 @@ pub unsafe fn _mm256_lddqu_si256(mem_addr: *const __m256i) -> __m256i {
 #[cfg_attr(test, assert_instr(vmovntps))] // FIXME vmovntdq
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm256_stream_si256(mem_addr: *mut __m256i, a: __m256i) {
-    intrinsics::nontemporal_store(mem_addr, a);
+    crate::arch::asm!(
+        "vmovntps [{mem_addr}], {a}",
+        mem_addr = in(reg) mem_addr,
+        a = in(ymm_reg) a,
+        options(nostack, preserves_flags),
+    );
 }
 
 /// Moves double-precision values from a 256-bit vector of `[4 x double]`
@@ -1741,7 +1746,12 @@ pub unsafe fn _mm256_stream_si256(mem_addr: *mut __m256i, a: __m256i) {
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[allow(clippy::cast_ptr_alignment)]
 pub unsafe fn _mm256_stream_pd(mem_addr: *mut f64, a: __m256d) {
-    intrinsics::nontemporal_store(mem_addr as *mut __m256d, a);
+    crate::arch::asm!(
+        "vmovntps [{mem_addr}], {a}",
+        mem_addr = in(reg) mem_addr,
+        a = in(ymm_reg) a,
+        options(nostack, preserves_flags),
+    );
 }
 
 /// Moves single-precision floating point values from a 256-bit vector
@@ -1765,7 +1775,12 @@ pub unsafe fn _mm256_stream_pd(mem_addr: *mut f64, a: __m256d) {
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[allow(clippy::cast_ptr_alignment)]
 pub unsafe fn _mm256_stream_ps(mem_addr: *mut f32, a: __m256) {
-    intrinsics::nontemporal_store(mem_addr as *mut __m256, a);
+    crate::arch::asm!(
+        "vmovntps [{mem_addr}], {a}",
+        mem_addr = in(reg) mem_addr,
+        a = in(ymm_reg) a,
+        options(nostack, preserves_flags),
+    );
 }
 
 /// Computes the approximate reciprocal of packed single-precision (32-bit)
@@ -2961,8 +2976,6 @@ extern "C" {
     fn roundpd256(a: __m256d, b: i32) -> __m256d;
     #[link_name = "llvm.x86.avx.round.ps.256"]
     fn roundps256(a: __m256, b: i32) -> __m256;
-    #[link_name = "llvm.x86.avx.sqrt.ps.256"]
-    fn sqrtps256(a: __m256) -> __m256;
     #[link_name = "llvm.x86.avx.dp.ps.256"]
     fn vdpps(a: __m256, b: __m256, imm8: i32) -> __m256;
     #[link_name = "llvm.x86.avx.hadd.pd.256"]
