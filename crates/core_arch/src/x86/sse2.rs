@@ -1199,16 +1199,6 @@ pub unsafe fn _mm_setzero_si128() -> __m128i {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadl_epi64)
 #[inline]
 #[target_feature(enable = "sse2")]
-// FIXME movsd on windows
-#[cfg_attr(
-    all(
-        test,
-        not(windows),
-        not(all(target_os = "linux", target_arch = "x86_64")),
-        target_arch = "x86_64"
-    ),
-    assert_instr(movq)
-)]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_loadl_epi64(mem_addr: *const __m128i) -> __m128i {
     _mm_set_epi64x(0, ptr::read_unaligned(mem_addr as *const i64))
@@ -1297,16 +1287,6 @@ pub unsafe fn _mm_storeu_si128(mem_addr: *mut __m128i, a: __m128i) {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storel_epi64)
 #[inline]
 #[target_feature(enable = "sse2")]
-// FIXME mov on windows, movlps on i686
-#[cfg_attr(
-    all(
-        test,
-        not(windows),
-        not(all(target_os = "linux", target_arch = "x86_64")),
-        target_arch = "x86_64"
-    ),
-    assert_instr(movq)
-)]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_storel_epi64(mem_addr: *mut __m128i, a: __m128i) {
     ptr::copy_nonoverlapping(ptr::addr_of!(a) as *const u8, mem_addr as *mut u8, 8);
@@ -1328,12 +1308,12 @@ pub unsafe fn _mm_storel_epi64(mem_addr: *mut __m128i, a: __m128i) {
 /// See [`_mm_sfence`] for details.
 #[inline]
 #[target_feature(enable = "sse,sse2")]
-#[cfg_attr(test, assert_instr(movntps))] // FIXME movntdq
+#[cfg_attr(test, assert_instr(movntdq))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_stream_si128(mem_addr: *mut __m128i, a: __m128i) {
     crate::arch::asm!(
-        "movntps [{mem_addr}], {a}",
-        mem_addr = in(reg) mem_addr,
+        vps!("movntdq",  ",{a}"),
+        p = in(reg) mem_addr,
         a = in(xmm_reg) a,
         options(nostack, preserves_flags),
     );
@@ -1359,8 +1339,8 @@ pub unsafe fn _mm_stream_si128(mem_addr: *mut __m128i, a: __m128i) {
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_stream_si32(mem_addr: *mut i32, a: i32) {
     crate::arch::asm!(
-        "movnti [{mem_addr}], {a:e}", // `:e` for 32bit value
-        mem_addr = in(reg) mem_addr,
+        vps!("movnti", ",{a:e}"), // `:e` for 32bit value
+        p = in(reg) mem_addr,
         a = in(reg) a,
         options(nostack, preserves_flags),
     );
@@ -1372,8 +1352,11 @@ pub unsafe fn _mm_stream_si32(mem_addr: *mut i32, a: i32) {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_move_epi64)
 #[inline]
 #[target_feature(enable = "sse2")]
-// FIXME movd on windows, movd on i686
-#[cfg_attr(all(test, not(windows), target_arch = "x86_64"), assert_instr(movq))]
+// FIXME movd on msvc, movd on i686
+#[cfg_attr(
+    all(test, not(target_env = "msvc"), target_arch = "x86_64"),
+    assert_instr(movq)
+)]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_move_epi64(a: __m128i) -> __m128i {
     let zero = _mm_setzero_si128();
@@ -1636,7 +1619,7 @@ pub unsafe fn _mm_unpacklo_epi32(a: __m128i, b: __m128i) -> __m128i {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_unpacklo_epi64)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movlhps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movlhps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_unpacklo_epi64(a: __m128i, b: __m128i) -> __m128i {
     transmute::<i64x2, _>(simd_shuffle!(a.as_i64x2(), b.as_i64x2(), [0, 2]))
@@ -2461,7 +2444,7 @@ pub unsafe fn _mm_setr_pd(a: f64, b: f64) -> __m128d {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_setzero_pd)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(test, assert_instr(xorps))] // FIXME xorpd expected
+#[cfg_attr(test, assert_instr(xorp))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_setzero_pd() -> __m128d {
     _mm_set_pd(0.0, 0.0)
@@ -2554,13 +2537,13 @@ pub unsafe fn _mm_loadl_pd(a: __m128d, mem_addr: *const f64) -> __m128d {
 /// See [`_mm_sfence`] for details.
 #[inline]
 #[target_feature(enable = "sse,sse2")]
-#[cfg_attr(test, assert_instr(movntps))] // FIXME movntpd
+#[cfg_attr(test, assert_instr(movntpd))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[allow(clippy::cast_ptr_alignment)]
 pub unsafe fn _mm_stream_pd(mem_addr: *mut f64, a: __m128d) {
     crate::arch::asm!(
-        "movntps [{mem_addr}], {a}",
-        mem_addr = in(reg) mem_addr,
+        vps!("movntpd", ",{a}"),
+        p = in(reg) mem_addr,
         a = in(xmm_reg) a,
         options(nostack, preserves_flags),
     );
@@ -2572,7 +2555,7 @@ pub unsafe fn _mm_stream_pd(mem_addr: *mut f64, a: __m128d) {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_store_sd)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movlps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movlps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_store_sd(mem_addr: *mut f64, a: __m128d) {
     *mem_addr = simd_extract!(a, 0)
@@ -2603,6 +2586,42 @@ pub unsafe fn _mm_store_pd(mem_addr: *mut f64, a: __m128d) {
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_storeu_pd(mem_addr: *mut f64, a: __m128d) {
     mem_addr.cast::<__m128d>().write_unaligned(a);
+}
+
+/// Store 16-bit integer from the first element of a into memory.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeu_si16)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[unstable(feature = "simd_x86_updates", issue = "126936")]
+pub unsafe fn _mm_storeu_si16(mem_addr: *mut u8, a: __m128i) {
+    ptr::write_unaligned(mem_addr as *mut i16, simd_extract(a.as_i16x8(), 0))
+}
+
+/// Store 32-bit integer from the first element of a into memory.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeu_si32)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[unstable(feature = "simd_x86_updates", issue = "126936")]
+pub unsafe fn _mm_storeu_si32(mem_addr: *mut u8, a: __m128i) {
+    ptr::write_unaligned(mem_addr as *mut i32, simd_extract(a.as_i32x4(), 0))
+}
+
+/// Store 64-bit integer from the first element of a into memory.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeu_si64)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[unstable(feature = "simd_x86_updates", issue = "126936")]
+pub unsafe fn _mm_storeu_si64(mem_addr: *mut u8, a: __m128i) {
+    ptr::write_unaligned(mem_addr as *mut i64, simd_extract(a.as_i64x2(), 0))
 }
 
 /// Stores the lower double-precision (64-bit) floating-point element from `a`
@@ -2654,7 +2673,7 @@ pub unsafe fn _mm_storer_pd(mem_addr: *mut f64, a: __m128d) {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeh_pd)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movhps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movhps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_storeh_pd(mem_addr: *mut f64, a: __m128d) {
     *mem_addr = simd_extract!(a, 1);
@@ -2666,7 +2685,7 @@ pub unsafe fn _mm_storeh_pd(mem_addr: *mut f64, a: __m128d) {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storel_pd)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movlps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movlps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_storel_pd(mem_addr: *mut f64, a: __m128d) {
     *mem_addr = simd_extract!(a, 0);
@@ -2728,6 +2747,56 @@ pub unsafe fn _mm_loadu_pd(mem_addr: *const f64) -> __m128d {
         mem::size_of::<__m128d>(),
     );
     dst
+}
+
+/// Loads unaligned 16-bits of integer data from memory into new vector.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadu_si16)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[unstable(feature = "simd_x86_updates", issue = "126936")]
+pub unsafe fn _mm_loadu_si16(mem_addr: *const u8) -> __m128i {
+    transmute(i16x8::new(
+        ptr::read_unaligned(mem_addr as *const i16),
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ))
+}
+
+/// Loads unaligned 32-bits of integer data from memory into new vector.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadu_si32)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[unstable(feature = "simd_x86_updates", issue = "126936")]
+pub unsafe fn _mm_loadu_si32(mem_addr: *const u8) -> __m128i {
+    transmute(i32x4::new(
+        ptr::read_unaligned(mem_addr as *const i32),
+        0,
+        0,
+        0,
+    ))
+}
+
+/// Loads unaligned 16-bits of integer data from memory into new vector.
+///
+/// `mem_addr` does not need to be aligned on any particular boundary.
+///
+/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadu_si16)
+#[inline]
+#[target_feature(enable = "sse2")]
+#[stable(feature = "simd_x86_mm_loadu_si64", since = "1.46.0")]
+pub unsafe fn _mm_loadu_si64(mem_addr: *const u8) -> __m128i {
+    transmute(i64x2::new(ptr::read_unaligned(mem_addr as *const i64), 0))
 }
 
 /// Constructs a 128-bit floating-point vector of `[2 x double]` from two
@@ -2873,7 +2942,7 @@ pub unsafe fn _mm_unpackhi_pd(a: __m128d, b: __m128d) -> __m128d {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_unpacklo_pd)
 #[inline]
 #[target_feature(enable = "sse2")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movlhps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movlhps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_unpacklo_pd(a: __m128d, b: __m128d) -> __m128d {
     simd_shuffle!(a, b, [0, 2])
@@ -4705,6 +4774,33 @@ mod tests {
     }
 
     #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_storeu_si16() {
+        let a = _mm_setr_epi16(1, 2, 3, 4, 5, 6, 7, 8);
+        let mut r = _mm_setr_epi16(9, 10, 11, 12, 13, 14, 15, 16);
+        _mm_storeu_si16(ptr::addr_of_mut!(r).cast(), a);
+        let e = _mm_setr_epi16(1, 10, 11, 12, 13, 14, 15, 16);
+        assert_eq_m128i(r, e);
+    }
+
+    #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_storeu_si32() {
+        let a = _mm_setr_epi32(1, 2, 3, 4);
+        let mut r = _mm_setr_epi32(5, 6, 7, 8);
+        _mm_storeu_si32(ptr::addr_of_mut!(r).cast(), a);
+        let e = _mm_setr_epi32(1, 6, 7, 8);
+        assert_eq_m128i(r, e);
+    }
+
+    #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_storeu_si64() {
+        let a = _mm_setr_epi64x(1, 2);
+        let mut r = _mm_setr_epi64x(3, 4);
+        _mm_storeu_si64(ptr::addr_of_mut!(r).cast(), a);
+        let e = _mm_setr_epi64x(1, 4);
+        assert_eq_m128i(r, e);
+    }
+
+    #[simd_test(enable = "sse2")]
     unsafe fn test_mm_store1_pd() {
         let mut mem = Memory { data: [0.0f64; 4] };
         let vals = &mut mem.data;
@@ -4786,6 +4882,27 @@ mod tests {
         let r = _mm_loadu_pd(d);
         let e = _mm_add_pd(_mm_setr_pd(1.0, 2.0), _mm_set1_pd(offset as f64));
         assert_eq_m128d(r, e);
+    }
+
+    #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_loadu_si16() {
+        let a = _mm_setr_epi16(1, 2, 3, 4, 5, 6, 7, 8);
+        let r = _mm_loadu_si16(ptr::addr_of!(a) as *const _);
+        assert_eq_m128i(r, _mm_setr_epi16(1, 0, 0, 0, 0, 0, 0, 0));
+    }
+
+    #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_loadu_si32() {
+        let a = _mm_setr_epi32(1, 2, 3, 4);
+        let r = _mm_loadu_si32(ptr::addr_of!(a) as *const _);
+        assert_eq_m128i(r, _mm_setr_epi32(1, 0, 0, 0));
+    }
+
+    #[simd_test(enable = "sse2")]
+    unsafe fn test_mm_loadu_si64() {
+        let a = _mm_setr_epi64x(5, 6);
+        let r = _mm_loadu_si64(ptr::addr_of!(a) as *const _);
+        assert_eq_m128i(r, _mm_setr_epi64x(5, 0));
     }
 
     #[simd_test(enable = "sse2")]

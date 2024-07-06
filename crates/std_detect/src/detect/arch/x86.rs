@@ -57,6 +57,9 @@ features! {
     /// * `"sha"`
     /// * `"avx"`
     /// * `"avx2"`
+    /// * `"sha512"`
+    /// * `"sm3"`
+    /// * `"sm4"`
     /// * `"avx512f"`
     /// * `"avx512cd"`
     /// * `"avx512er"`
@@ -81,6 +84,11 @@ features! {
     /// * `"avxneconvert"`
     /// * `"avxvnniint8"`
     /// * `"avxvnniint16"`
+    /// * `"amx-tile"`
+    /// * `"amx-int8"`
+    /// * `"amx-bf16"`
+    /// * `"amx-fp16"`
+    /// * `"amx-complex"`
     /// * `"f16c"`
     /// * `"fma"`
     /// * `"bmi1"`
@@ -138,6 +146,12 @@ features! {
     /// AVX (Advanced Vector Extensions)
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] avx2: "avx2";
     /// AVX2 (Advanced Vector Extensions 2)
+    @FEATURE: #[unstable(feature = "sha512_sm_x86", issue = "126624")] sha512: "sha512";
+    /// SHA512
+    @FEATURE: #[unstable(feature = "sha512_sm_x86", issue = "126624")] sm3: "sm3";
+    /// SM3
+    @FEATURE: #[unstable(feature = "sha512_sm_x86", issue = "126624")] sm4: "sm4";
+    /// SM4
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] avx512f: "avx512f" ;
     /// AVX-512 F (Foundation)
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] avx512cd: "avx512cd" ;
@@ -187,6 +201,16 @@ features! {
     /// AVX-VNNI_INT8 (VNNI with 16-bit Integers)
     @FEATURE: #[unstable(feature = "avx512_target_feature", issue = "44839")] avxvnniint8: "avxvnniint8";
     /// AVX-VNNI_INT16 (VNNI with 8-bit integers)
+    @FEATURE: #[unstable(feature = "x86_amx_intrinsics", issue = "126622")] amx_tile: "amx-tile";
+    /// AMX (Advanced Matrix Extensions) - Tile load/store
+    @FEATURE: #[unstable(feature = "x86_amx_intrinsics", issue = "126622")] amx_int8: "amx-int8";
+    /// AMX-INT8 (Operations on 8-bit integers)
+    @FEATURE: #[unstable(feature = "x86_amx_intrinsics", issue = "126622")] amx_bf16: "amx-bf16";
+    /// AMX-BF16 (BFloat16 Operations)
+    @FEATURE: #[unstable(feature = "x86_amx_intrinsics", issue = "126622")] amx_fp16: "amx-fp16";
+    /// AMX-FP16 (Float16 Operations)
+    @FEATURE: #[unstable(feature = "x86_amx_intrinsics", issue = "126622")] amx_complex: "amx-complex";
+    /// AMX-COMPLEX (Complex number Operations)
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] f16c: "f16c";
     /// F16C (Conversions between IEEE-754 `binary16` and `binary32` formats)
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] fma: "fma";
@@ -221,4 +245,6 @@ features! {
     /// MOVBE (Move Data After Swapping Bytes)
     @FEATURE: #[stable(feature = "simd_x86", since = "1.27.0")] ermsb: "ermsb";
     /// ERMSB, Enhanced REP MOVSB and STOSB
+    @FEATURE: #[unstable(feature = "xop_target_feature", issue = "127208")] xop: "xop";
+    /// XOP: eXtended Operations (AMD)
 }

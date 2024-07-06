@@ -852,7 +852,7 @@ pub unsafe fn _mm_cvtt_ss2si(a: __m128) -> i32 {
 #[inline]
 #[target_feature(enable = "sse")]
 // No point in using assert_instrs. In Unix x86_64 calling convention this is a
-// no-op, and on Windows it's just a `mov`.
+// no-op, and on msvc it's just a `mov`.
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_cvtss_f32(a: __m128) -> f32 {
     simd_extract!(a, 0)
@@ -958,12 +958,12 @@ pub unsafe fn _mm_set_ps(a: f32, b: f32, c: f32, d: f32) -> __m128 {
 #[inline]
 #[target_feature(enable = "sse")]
 #[cfg_attr(
-    all(test, any(target_os = "windows", target_arch = "x86_64")),
+    all(test, any(target_env = "msvc", target_arch = "x86_64")),
     assert_instr(unpcklps)
 )]
-// On a 32-bit architecture on non-Windows it just copies the operands from the stack.
+// On a 32-bit architecture on non-msvc it just copies the operands from the stack.
 #[cfg_attr(
-    all(test, all(not(target_os = "windows"), target_arch = "x86")),
+    all(test, all(not(target_env = "msvc"), target_arch = "x86")),
     assert_instr(movaps)
 )]
 #[stable(feature = "simd_x86", since = "1.27.0")]
@@ -1053,10 +1053,10 @@ pub unsafe fn _mm_unpacklo_ps(a: __m128, b: __m128) -> __m128 {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_movehl_ps)
 #[inline]
 #[target_feature(enable = "sse")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movhlps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movhlps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_movehl_ps(a: __m128, b: __m128) -> __m128 {
-    // TODO; figure why this is a different instruction on Windows?
+    // TODO; figure why this is a different instruction on msvc?
     simd_shuffle!(a, b, [6, 7, 2, 3])
 }
 
@@ -1066,7 +1066,7 @@ pub unsafe fn _mm_movehl_ps(a: __m128, b: __m128) -> __m128 {
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_movelh_ps)
 #[inline]
 #[target_feature(enable = "sse")]
-#[cfg_attr(all(test, not(target_os = "windows")), assert_instr(movlhps))]
+#[cfg_attr(all(test, not(target_env = "msvc")), assert_instr(movlhps))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_movelh_ps(a: __m128, b: __m128) -> __m128 {
     simd_shuffle!(a, b, [0, 1, 4, 5])
@@ -1202,18 +1202,6 @@ pub unsafe fn _mm_loadu_ps(p: *const f32) -> __m128 {
 pub unsafe fn _mm_loadr_ps(p: *const f32) -> __m128 {
     let a = _mm_load_ps(p);
     simd_shuffle!(a, a, [3, 2, 1, 0])
-}
-
-/// Loads unaligned 64-bits of integer data from memory into new vector.
-///
-/// `mem_addr` does not need to be aligned on any particular boundary.
-///
-/// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadu_si64)
-#[inline]
-#[target_feature(enable = "sse")]
-#[stable(feature = "simd_x86_mm_loadu_si64", since = "1.46.0")]
-pub unsafe fn _mm_loadu_si64(mem_addr: *const u8) -> __m128i {
-    transmute(i64x2::new(ptr::read_unaligned(mem_addr as *const i64), 0))
 }
 
 /// Stores the lowest 32 bit float of `a` into memory.
@@ -1878,6 +1866,7 @@ pub const _MM_HINT_ET1: i32 = 6;
 #[rustc_legacy_const_generics(1)]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_prefetch<const STRATEGY: i32>(p: *const i8) {
+    static_assert_uimm_bits!(STRATEGY, 3);
     // We use the `llvm.prefetch` intrinsic with `cache type` = 1 (data cache).
     // `locality` and `rw` are based on our `STRATEGY`.
     prefetch(p, (STRATEGY >> 2) & 1, STRATEGY & 3, 1);
@@ -2003,8 +1992,8 @@ extern "C" {
 #[allow(clippy::cast_ptr_alignment)]
 pub unsafe fn _mm_stream_ps(mem_addr: *mut f32, a: __m128) {
     crate::arch::asm!(
-        "movntps [{mem_addr}], {a}",
-        mem_addr = in(reg) mem_addr,
+        vps!("movntps", ",{a}"),
+        p = in(reg) mem_addr,
         a = in(xmm_reg) a,
         options(nostack, preserves_flags),
     );
@@ -3187,13 +3176,6 @@ mod tests {
         let r = _mm_loadr_ps(p);
         let e = _mm_add_ps(_mm_setr_ps(4.0, 3.0, 2.0, 1.0), _mm_set1_ps(fixup));
         assert_eq_m128(r, e);
-    }
-
-    #[simd_test(enable = "sse2")]
-    unsafe fn test_mm_loadu_si64() {
-        let a = _mm_setr_epi64x(5, 6);
-        let r = _mm_loadu_si64(ptr::addr_of!(a) as *const _);
-        assert_eq_m128i(r, _mm_setr_epi64x(5, 0));
     }
 
     #[simd_test(enable = "sse")]
