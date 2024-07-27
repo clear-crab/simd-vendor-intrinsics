@@ -1,6 +1,7 @@
 #![allow(internal_features)]
 #![feature(stdarch_internal)]
 #![cfg_attr(target_arch = "arm", feature(stdarch_arm_feature_detection))]
+#![cfg_attr(target_arch = "aarch64", feature(stdarch_aarch64_feature_detection))]
 #![cfg_attr(target_arch = "powerpc", feature(stdarch_powerpc_feature_detection))]
 #![cfg_attr(target_arch = "powerpc64", feature(stdarch_powerpc_feature_detection))]
 #![cfg_attr(
@@ -67,21 +68,26 @@ fn aarch64_linux() {
     println!("crc: {}", is_aarch64_feature_detected!("crc"));
     println!("lse: {}", is_aarch64_feature_detected!("lse"));
     println!("lse2: {}", is_aarch64_feature_detected!("lse2"));
+    println!("lse128: {}", is_aarch64_feature_detected!("lse128"));
     println!("rdm: {}", is_aarch64_feature_detected!("rdm"));
     println!("rcpc: {}", is_aarch64_feature_detected!("rcpc"));
     println!("rcpc2: {}", is_aarch64_feature_detected!("rcpc2"));
+    println!("rcpc3: {}", is_aarch64_feature_detected!("rcpc3"));
     println!("dotprod: {}", is_aarch64_feature_detected!("dotprod"));
     println!("tme: {}", is_aarch64_feature_detected!("tme"));
     println!("fhm: {}", is_aarch64_feature_detected!("fhm"));
     println!("dit: {}", is_aarch64_feature_detected!("dit"));
     println!("flagm: {}", is_aarch64_feature_detected!("flagm"));
+    println!("flagm2: {}", is_aarch64_feature_detected!("flagm2"));
     println!("ssbs: {}", is_aarch64_feature_detected!("ssbs"));
     println!("sb: {}", is_aarch64_feature_detected!("sb"));
     println!("paca: {}", is_aarch64_feature_detected!("paca"));
     println!("pacg: {}", is_aarch64_feature_detected!("pacg"));
     println!("dpb: {}", is_aarch64_feature_detected!("dpb"));
     println!("dpb2: {}", is_aarch64_feature_detected!("dpb2"));
+    println!("sve-b16b16: {}", is_aarch64_feature_detected!("sve-b16b16"));
     println!("sve2: {}", is_aarch64_feature_detected!("sve2"));
+    println!("sve2p1: {}", is_aarch64_feature_detected!("sve2p1"));
     println!("sve2-aes: {}", is_aarch64_feature_detected!("sve2-aes"));
     println!("sve2-sm4: {}", is_aarch64_feature_detected!("sve2-sm4"));
     println!("sve2-sha3: {}", is_aarch64_feature_detected!("sve2-sha3"));
@@ -103,6 +109,40 @@ fn aarch64_linux() {
     println!("sha2: {}", is_aarch64_feature_detected!("sha2"));
     println!("sha3: {}", is_aarch64_feature_detected!("sha3"));
     println!("sm4: {}", is_aarch64_feature_detected!("sm4"));
+    println!("hbc: {}", is_aarch64_feature_detected!("hbc"));
+    println!("mops: {}", is_aarch64_feature_detected!("mops"));
+    println!("ecv: {}", is_aarch64_feature_detected!("ecv"));
+    println!("cssc: {}", is_aarch64_feature_detected!("cssc"));
+    println!("fpmr: {}", is_aarch64_feature_detected!("fpmr"));
+    println!("lut: {}", is_aarch64_feature_detected!("lut"));
+    println!("faminmax: {}", is_aarch64_feature_detected!("faminmax"));
+    println!("fp8: {}", is_aarch64_feature_detected!("fp8"));
+    println!("fp8fma: {}", is_aarch64_feature_detected!("fp8fma"));
+    println!("fp8dot4: {}", is_aarch64_feature_detected!("fp8dot4"));
+    println!("fp8dot2: {}", is_aarch64_feature_detected!("fp8dot2"));
+    println!("wfxt: {}", is_aarch64_feature_detected!("wfxt"));
+    println!("sme: {}", is_aarch64_feature_detected!("sme"));
+    println!("sme-i16i64: {}", is_aarch64_feature_detected!("sme-i16i64"));
+    println!("sme-f64f64: {}", is_aarch64_feature_detected!("sme-f64f64"));
+    println!("sme-fa64: {}", is_aarch64_feature_detected!("sme-fa64"));
+    println!("sme2: {}", is_aarch64_feature_detected!("sme2"));
+    println!("sme2p1: {}", is_aarch64_feature_detected!("sme2p1"));
+    println!("sme-f16f16: {}", is_aarch64_feature_detected!("sme-f16f16"));
+    println!("sme-lutv2: {}", is_aarch64_feature_detected!("sme-lutv2"));
+    println!("sme-f8f16: {}", is_aarch64_feature_detected!("sme-f8f16"));
+    println!("sme-f8f32: {}", is_aarch64_feature_detected!("sme-f8f32"));
+    println!(
+        "ssve-fp8fma: {}",
+        is_aarch64_feature_detected!("ssve-fp8fma")
+    );
+    println!(
+        "ssve-fp8dot4: {}",
+        is_aarch64_feature_detected!("ssve-fp8dot4")
+    );
+    println!(
+        "ssve-fp8dot2: {}",
+        is_aarch64_feature_detected!("ssve-fp8dot2")
+    );
 }
 
 #[test]

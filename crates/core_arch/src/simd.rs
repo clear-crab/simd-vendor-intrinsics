@@ -186,9 +186,19 @@ simd_ty!(
 simd_ty!(i32x4[i32]: x0, x1, x2, x3);
 simd_ty!(i64x2[i64]: x0, x1);
 
+simd_ty!(
+    f16x8[f16]:
+    x0,
+    x1,
+    x2,
+    x3,
+    x4,
+    x5,
+    x6,
+    x7
+);
 simd_ty!(f32x4[f32]: x0, x1, x2, x3);
 simd_ty!(f64x2[f64]: x0, x1);
-simd_ty!(f64x4[f64]: x0, x1, x2, x3);
 
 simd_m_ty!(
     m8x16[i8]:
@@ -360,6 +370,25 @@ simd_ty!(
 simd_ty!(i64x4[i64]: x0, x1, x2, x3);
 
 simd_ty!(
+    f16x16[f16]:
+    x0,
+    x1,
+    x2,
+    x3,
+    x4,
+    x5,
+    x6,
+    x7,
+    x8,
+    x9,
+    x10,
+    x11,
+    x12,
+    x13,
+    x14,
+    x15
+);
+simd_ty!(
     f32x8[f32]:
     x0,
     x1,
@@ -370,6 +399,7 @@ simd_ty!(
     x6,
     x7
 );
+simd_ty!(f64x4[f64]: x0, x1, x2, x3);
 
 simd_m_ty!(
     m8x32[i8]:
@@ -688,6 +718,41 @@ simd_ty!(
     x15
 );
 
+simd_ty!(
+    f16x32[f16]:
+    x0,
+    x1,
+    x2,
+    x3,
+    x4,
+    x5,
+    x6,
+    x7,
+    x8,
+    x9,
+    x10,
+    x11,
+    x12,
+    x13,
+    x14,
+    x15,
+    x16,
+    x17,
+    x18,
+    x19,
+    x20,
+    x21,
+    x22,
+    x23,
+    x24,
+    x25,
+    x26,
+    x27,
+    x28,
+    x29,
+    x30,
+    x31
+);
 simd_ty!(
     f32x16[f32]:
     x0,
