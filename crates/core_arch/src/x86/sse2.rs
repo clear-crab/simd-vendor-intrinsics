@@ -2424,7 +2424,7 @@ pub unsafe fn _mm_set_pd1(a: f64) -> __m128d {
 #[target_feature(enable = "sse2")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_set_pd(a: f64, b: f64) -> __m128d {
-    __m128d(b, a)
+    __m128d([b, a])
 }
 
 /// Sets packed double-precision (64-bit) floating-point elements in the return
@@ -2902,7 +2902,7 @@ pub unsafe fn _mm_castsi128_ps(a: __m128i) -> __m128 {
 #[target_feature(enable = "sse2")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_undefined_pd() -> __m128d {
-    __m128d(0.0, 0.0)
+    __m128d([0.0, 0.0])
 }
 
 /// Returns vector of type __m128i with indeterminate elements.
@@ -2914,15 +2914,14 @@ pub unsafe fn _mm_undefined_pd() -> __m128d {
 #[target_feature(enable = "sse2")]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_undefined_si128() -> __m128i {
-    __m128i(0, 0)
+    __m128i([0, 0])
 }
 
 /// The resulting `__m128d` element is composed by the low-order values of
 /// the two `__m128d` interleaved input elements, i.e.:
 ///
-/// * The `[127:64]` bits are copied from the `[127:64]` bits of the second
-/// input * The `[63:0]` bits are copied from the `[127:64]` bits of the first
-/// input
+/// * The `[127:64]` bits are copied from the `[127:64]` bits of the second input
+/// * The `[63:0]` bits are copied from the `[127:64]` bits of the first input
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_unpackhi_pd)
 #[inline]

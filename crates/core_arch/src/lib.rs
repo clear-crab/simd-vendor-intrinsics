@@ -14,6 +14,7 @@
     core_intrinsics,
     intrinsics,
     no_core,
+    fmt_helpers_for_derive,
     rustc_attrs,
     staged_api,
     doc_cfg,
@@ -35,6 +36,7 @@
     generic_arg_infer,
     asm_experimental_arch,
     sha512_sm_x86,
+    x86_amx_intrinsics,
     f16
 )]
 #![cfg_attr(test, feature(test, abi_vectorcall, stdarch_internal))]
@@ -87,4 +89,4 @@ pub mod arch {
 }
 
 #[allow(unused_imports)]
-use core::{convert, ffi, hint, intrinsics, marker, mem, ops, ptr, sync};
+use core::{array, convert, ffi, fmt, hint, intrinsics, marker, mem, ops, ptr, sync};

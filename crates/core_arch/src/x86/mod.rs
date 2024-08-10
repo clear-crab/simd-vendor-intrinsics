@@ -1,5 +1,6 @@
 //! `x86` and `x86_64` intrinsics.
 
+use crate::intrinsics::simd::simd_shuffle;
 #[allow(unused_imports)]
 use crate::marker::Sized;
 use crate::mem::transmute;
@@ -8,6 +9,8 @@ use crate::mem::transmute;
 mod macros;
 
 types! {
+    #![stable(feature = "simd_x86", since = "1.27.0")]
+
     /// 128-bit wide integer vector type, x86-specific
     ///
     /// This type is the same as the `__m128i` type defined by Intel,
@@ -49,8 +52,7 @@ types! {
     /// # if is_x86_feature_detected!("sse2") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m128i(i64, i64);
+    pub struct __m128i(2 x i64);
 
     /// 128-bit wide set of four `f32` types, x86-specific
     ///
@@ -86,8 +88,7 @@ types! {
     /// # if is_x86_feature_detected!("sse") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m128(f32, f32, f32, f32);
+    pub struct __m128(4 x f32);
 
     /// 128-bit wide set of two `f64` types, x86-specific
     ///
@@ -123,8 +124,7 @@ types! {
     /// # if is_x86_feature_detected!("sse") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m128d(f64, f64);
+    pub struct __m128d(2 x f64);
 
     /// 256-bit wide integer vector type, x86-specific
     ///
@@ -164,8 +164,7 @@ types! {
     /// # if is_x86_feature_detected!("avx") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m256i(i64, i64, i64, i64);
+    pub struct __m256i(4 x i64);
 
     /// 256-bit wide set of eight `f32` types, x86-specific
     ///
@@ -201,8 +200,7 @@ types! {
     /// # if is_x86_feature_detected!("avx") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m256(f32, f32, f32, f32, f32, f32, f32, f32);
+    pub struct __m256(8 x f32);
 
     /// 256-bit wide set of four `f64` types, x86-specific
     ///
@@ -238,8 +236,11 @@ types! {
     /// # if is_x86_feature_detected!("avx") { unsafe { foo() } }
     /// # }
     /// ```
-    #[stable(feature = "simd_x86", since = "1.27.0")]
-    pub struct __m256d(f64, f64, f64, f64);
+    pub struct __m256d(4 x f64);
+}
+
+types! {
+    #![stable(feature = "simd_avx512_types", since = "1.72.0")]
 
     /// 512-bit wide integer vector type, x86-specific
     ///
@@ -260,8 +261,7 @@ types! {
     ///
     /// Note that this means that an instance of `__m512i` typically just means
     /// a "bag of bits" which is left up to interpretation at the point of use.
-    #[stable(feature = "simd_avx512_types", since = "1.72.0")]
-    pub struct __m512i(i64, i64, i64, i64, i64, i64, i64, i64);
+    pub struct __m512i(8 x i64);
 
     /// 512-bit wide set of sixteen `f32` types, x86-specific
     ///
@@ -278,11 +278,7 @@ types! {
     /// Most intrinsics using `__m512` are prefixed with `_mm512_` and are
     /// suffixed with "ps" (or otherwise contain "ps"). Not to be confused with
     /// "pd" which is used for `__m512d`.
-    #[stable(feature = "simd_avx512_types", since = "1.72.0")]
-    pub struct __m512(
-        f32, f32, f32, f32, f32, f32, f32, f32,
-        f32, f32, f32, f32, f32, f32, f32, f32,
-    );
+    pub struct __m512(16 x f32);
 
     /// 512-bit wide set of eight `f64` types, x86-specific
     ///
@@ -299,16 +295,18 @@ types! {
     /// Most intrinsics using `__m512d` are prefixed with `_mm512_` and are
     /// suffixed with "pd" (or otherwise contain "pd"). Not to be confused with
     /// "ps" which is used for `__m512`.
-    #[stable(feature = "simd_avx512_types", since = "1.72.0")]
-    pub struct __m512d(f64, f64, f64, f64, f64, f64, f64, f64);
+    pub struct __m512d(8 x f64);
+}
+
+types! {
+    #![unstable(feature = "stdarch_x86_avx512", issue = "111137")]
 
     /// 128-bit wide set of eight `u16` types, x86-specific
     ///
     /// This type is representing a 128-bit SIMD register which internally is consisted of
     /// eight packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-    pub struct __m128bh(u16, u16, u16, u16, u16, u16, u16, u16);
+    pub struct __m128bh(8 x u16);
 
     /// 256-bit wide set of 16 `u16` types, x86-specific
     ///
@@ -316,11 +314,7 @@ types! {
     /// representing a 256-bit SIMD register which internally is consisted of
     /// 16 packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-    pub struct __m256bh(
-        u16, u16, u16, u16, u16, u16, u16, u16,
-        u16, u16, u16, u16, u16, u16, u16, u16
-    );
+    pub struct __m256bh(16 x u16);
 
     /// 512-bit wide set of 32 `u16` types, x86-specific
     ///
@@ -328,13 +322,11 @@ types! {
     /// representing a 512-bit SIMD register which internally is consisted of
     /// 32 packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-    pub struct __m512bh(
-        u16, u16, u16, u16, u16, u16, u16, u16,
-        u16, u16, u16, u16, u16, u16, u16, u16,
-        u16, u16, u16, u16, u16, u16, u16, u16,
-        u16, u16, u16, u16, u16, u16, u16, u16
-    );
+    pub struct __m512bh(32 x u16);
+}
+
+types! {
+    #![unstable(feature = "stdarch_x86_avx512_f16", issue = "127213")]
 
     /// 128-bit wide set of 8 `f16` types, x86-specific
     ///
@@ -342,8 +334,7 @@ types! {
     /// representing a 128-bit SIMD register which internally is consisted of
     /// 8 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512_f16", issue = "127213")]
-    pub struct __m128h(f16, f16, f16, f16, f16, f16, f16, f16);
+    pub struct __m128h(8 x f16);
 
     /// 256-bit wide set of 16 `f16` types, x86-specific
     ///
@@ -351,11 +342,7 @@ types! {
     /// representing a 256-bit SIMD register which internally is consisted of
     /// 16 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512_f16", issue = "127213")]
-    pub struct __m256h(
-        f16, f16, f16, f16, f16, f16, f16, f16,
-        f16, f16, f16, f16, f16, f16, f16, f16
-    );
+    pub struct __m256h(16 x f16);
 
     /// 512-bit wide set of 32 `f16` types, x86-specific
     ///
@@ -363,13 +350,7 @@ types! {
     /// representing a 512-bit SIMD register which internally is consisted of
     /// 32 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
-    #[unstable(feature = "stdarch_x86_avx512_f16", issue = "127213")]
-    pub struct __m512h(
-        f16, f16, f16, f16, f16, f16, f16, f16,
-        f16, f16, f16, f16, f16, f16, f16, f16,
-        f16, f16, f16, f16, f16, f16, f16, f16,
-        f16, f16, f16, f16, f16, f16, f16, f16
-    );
+    pub struct __m512h(32 x f16);
 }
 
 /// The BFloat16 type used in AVX-512 intrinsics.
