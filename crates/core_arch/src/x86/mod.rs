@@ -1,6 +1,5 @@
 //! `x86` and `x86_64` intrinsics.
 
-use crate::intrinsics::simd::simd_shuffle;
 #[allow(unused_imports)]
 use crate::marker::Sized;
 use crate::mem::transmute;
@@ -27,6 +26,12 @@ types! {
     /// (as well as unsigned versions). Each intrinsic may interpret the
     /// internal bits differently, check the documentation of the intrinsic
     /// to see how it's being used.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     ///
     /// Note that this means that an instance of `__m128i` typically just means
     /// a "bag of bits" which is left up to interpretation at the point of use.
@@ -66,6 +71,12 @@ types! {
     /// of `__m128` always corresponds to `f32x4`, or four `f32` types packed
     /// together.
     ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
+    ///
     /// Most intrinsics using `__m128` are prefixed with `_mm_` and are
     /// suffixed with "ps" (or otherwise contain "ps"). Not to be confused with
     /// "pd" which is used for `__m128d`.
@@ -101,6 +112,12 @@ types! {
     /// registers, this `__m128d` type has *one* interpretation. Each instance
     /// of `__m128d` always corresponds to `f64x2`, or two `f64` types packed
     /// together.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     ///
     /// Most intrinsics using `__m128d` are prefixed with `_mm_` and are
     /// suffixed with "pd" (or otherwise contain "pd"). Not to be confused with
@@ -143,6 +160,12 @@ types! {
     /// internal bits differently, check the documentation of the intrinsic
     /// to see how it's being used.
     ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
+    ///
     /// Note that this means that an instance of `__m256i` typically just means
     /// a "bag of bits" which is left up to interpretation at the point of use.
     ///
@@ -177,6 +200,12 @@ types! {
     /// registers, this `__m256` type has *one* interpretation. Each instance
     /// of `__m256` always corresponds to `f32x8`, or eight `f32` types packed
     /// together.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding  between two consecutive elements); however, the
+    /// alignment is different and equal to the size of the type. Note that the
+    /// ABI for function calls may *not* be the same.
     ///
     /// Most intrinsics using `__m256` are prefixed with `_mm256_` and are
     /// suffixed with "ps" (or otherwise contain "ps"). Not to be confused with
@@ -213,6 +242,12 @@ types! {
     /// registers, this `__m256d` type has *one* interpretation. Each instance
     /// of `__m256d` always corresponds to `f64x4`, or four `f64` types packed
     /// together.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     ///
     /// Most intrinsics using `__m256d` are prefixed with `_mm256_` and are
     /// suffixed with "pd" (or otherwise contain "pd"). Not to be confused with
@@ -259,6 +294,12 @@ types! {
     /// internal bits differently, check the documentation of the intrinsic
     /// to see how it's being used.
     ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
+    ///
     /// Note that this means that an instance of `__m512i` typically just means
     /// a "bag of bits" which is left up to interpretation at the point of use.
     pub struct __m512i(8 x i64);
@@ -274,6 +315,12 @@ types! {
     /// registers, this `__m512` type has *one* interpretation. Each instance
     /// of `__m512` always corresponds to `f32x16`, or sixteen `f32` types
     /// packed together.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding  between two consecutive elements); however, the
+    /// alignment is different and equal to the size of the type. Note that the
+    /// ABI for function calls may *not* be the same.
     ///
     /// Most intrinsics using `__m512` are prefixed with `_mm512_` and are
     /// suffixed with "ps" (or otherwise contain "ps"). Not to be confused with
@@ -292,6 +339,12 @@ types! {
     /// of `__m512d` always corresponds to `f64x4`, or eight `f64` types packed
     /// together.
     ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding  between two consecutive elements); however, the
+    /// alignment is different and equal to the size of the type. Note that the
+    /// ABI for function calls may *not* be the same.
+    ///
     /// Most intrinsics using `__m512d` are prefixed with `_mm512_` and are
     /// suffixed with "pd" (or otherwise contain "pd"). Not to be confused with
     /// "ps" which is used for `__m512`.
@@ -306,6 +359,12 @@ types! {
     /// This type is representing a 128-bit SIMD register which internally is consisted of
     /// eight packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m128bh(8 x u16);
 
     /// 256-bit wide set of 16 `u16` types, x86-specific
@@ -314,6 +373,12 @@ types! {
     /// representing a 256-bit SIMD register which internally is consisted of
     /// 16 packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m256bh(16 x u16);
 
     /// 512-bit wide set of 32 `u16` types, x86-specific
@@ -322,6 +387,12 @@ types! {
     /// representing a 512-bit SIMD register which internally is consisted of
     /// 32 packed `u16` instances. Its purpose is for bf16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m512bh(32 x u16);
 }
 
@@ -334,6 +405,12 @@ types! {
     /// representing a 128-bit SIMD register which internally is consisted of
     /// 8 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m128h(8 x f16);
 
     /// 256-bit wide set of 16 `f16` types, x86-specific
@@ -342,6 +419,12 @@ types! {
     /// representing a 256-bit SIMD register which internally is consisted of
     /// 16 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m256h(16 x f16);
 
     /// 512-bit wide set of 32 `f16` types, x86-specific
@@ -350,6 +433,12 @@ types! {
     /// representing a 512-bit SIMD register which internally is consisted of
     /// 32 packed `f16` instances. its purpose is for f16 related intrinsic
     /// implementations.
+    ///
+    /// The in-memory representation of this type is the same as the one of an
+    /// equivalent array (i.e. the in-memory order of elements is the same, and
+    /// there is no padding); however, the alignment is different and equal to
+    /// the size of the type. Note that the ABI for function calls may *not* be
+    /// the same.
     pub struct __m512h(32 x f16);
 }
 
