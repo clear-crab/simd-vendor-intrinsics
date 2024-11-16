@@ -1107,7 +1107,7 @@ pub unsafe fn _mm_mask_load_sh(src: __m128h, k: __mmask8, mem_addr: *const f16) 
         dst = inout(xmm_reg) dst,
         k = in(kreg) k,
         p = in(reg) mem_addr,
-        options(pure, nomem, nostack, preserves_flags)
+        options(pure, readonly, nostack, preserves_flags)
     );
     dst
 }
@@ -1126,7 +1126,7 @@ pub unsafe fn _mm_maskz_load_sh(k: __mmask8, mem_addr: *const f16) -> __m128h {
         dst = out(xmm_reg) dst,
         k = in(kreg) k,
         p = in(reg) mem_addr,
-        options(pure, nomem, nostack, preserves_flags)
+        options(pure, readonly, nostack, preserves_flags)
     );
     dst
 }
@@ -2308,7 +2308,6 @@ pub unsafe fn _mm512_maskz_div_ph(k: __mmask32, a: __m512h, b: __m512h) -> __m51
 /// * [`_MM_FROUND_CUR_DIRECTION`] : use `MXCSR.RC` - see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm512_div_round_ph)
-
 #[inline]
 #[target_feature(enable = "avx512fp16")]
 #[cfg_attr(test, assert_instr(vdivph, ROUNDING = 8))]
