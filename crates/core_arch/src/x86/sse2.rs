@@ -1305,7 +1305,7 @@ pub unsafe fn _mm_storel_epi64(mem_addr: *mut __m128i, a: __m128i) {
 ///
 /// See [`_mm_sfence`] for details.
 #[inline]
-#[target_feature(enable = "sse,sse2")]
+#[target_feature(enable = "sse2")]
 #[cfg_attr(test, assert_instr(movntdq))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 pub unsafe fn _mm_stream_si128(mem_addr: *mut __m128i, a: __m128i) {
@@ -2533,7 +2533,7 @@ pub unsafe fn _mm_loadl_pd(a: __m128d, mem_addr: *const f64) -> __m128d {
 ///
 /// See [`_mm_sfence`] for details.
 #[inline]
-#[target_feature(enable = "sse,sse2")]
+#[target_feature(enable = "sse2")]
 #[cfg_attr(test, assert_instr(movntpd))]
 #[stable(feature = "simd_x86", since = "1.27.0")]
 #[allow(clippy::cast_ptr_alignment)]
@@ -2784,7 +2784,7 @@ pub unsafe fn _mm_loadu_si32(mem_addr: *const u8) -> __m128i {
     ))
 }
 
-/// Loads unaligned 16-bits of integer data from memory into new vector.
+/// Loads unaligned 64-bits of integer data from memory into new vector.
 ///
 /// `mem_addr` does not need to be aligned on any particular boundary.
 ///
