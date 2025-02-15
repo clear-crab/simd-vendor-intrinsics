@@ -53,7 +53,7 @@ types! {
 
 #[allow(improper_ctypes)]
 #[rustfmt::skip]
-extern "unadjusted" {
+unsafe extern "unadjusted" {
     #[link_name = "llvm.smax.v16i8"] fn vmxb(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char;
     #[link_name = "llvm.smax.v8i16"] fn vmxh(a: vector_signed_short, b: vector_signed_short) -> vector_signed_short;
     #[link_name = "llvm.smax.v4i32"] fn vmxf(a: vector_signed_int, b: vector_signed_int) -> vector_signed_int;
@@ -450,6 +450,185 @@ mod sealed {
         (u64, u64x2, vector_bool_long_long),
         (i64, i64x2, vector_bool_long_long)
     }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait CountBits {
+        type Result;
+
+        unsafe fn vec_cntlz(self) -> Self::Result;
+        unsafe fn vec_cnttz(self) -> Self::Result;
+        unsafe fn vec_popcnt(self) -> Self::Result;
+    }
+
+    macro_rules! impl_count_bits {
+        ($ty:tt) => {
+            #[unstable(feature = "stdarch_s390x", issue = "135681")]
+            impl CountBits for $ty {
+                type Result = t_u!($ty);
+
+                #[inline]
+                #[target_feature(enable = "vector")]
+                unsafe fn vec_cntlz(self) -> Self::Result {
+                    transmute(simd_ctlz(self))
+                }
+
+                #[inline]
+                #[target_feature(enable = "vector")]
+                unsafe fn vec_cnttz(self) -> Self::Result {
+                    transmute(simd_cttz(self))
+                }
+
+                #[inline]
+                #[target_feature(enable = "vector")]
+                unsafe fn vec_popcnt(self) -> Self::Result {
+                    transmute(simd_ctpop(self))
+                }
+            }
+        };
+    }
+
+    impl_count_bits!(vector_signed_char);
+    impl_count_bits!(vector_unsigned_char);
+    impl_count_bits!(vector_signed_short);
+    impl_count_bits!(vector_unsigned_short);
+    impl_count_bits!(vector_signed_int);
+    impl_count_bits!(vector_unsigned_int);
+    impl_count_bits!(vector_signed_long_long);
+    impl_count_bits!(vector_unsigned_long_long);
+
+    test_impl! { vec_clzb_signed +(a: vector_signed_char) -> vector_unsigned_char [simd_ctlz, vclzb] }
+    test_impl! { vec_clzh_signed +(a: vector_signed_short) -> vector_unsigned_short [simd_ctlz, vclzh] }
+    test_impl! { vec_clzf_signed +(a: vector_signed_int) -> vector_unsigned_int [simd_ctlz, vclzf] }
+    test_impl! { vec_clzg_signed +(a: vector_signed_long_long) -> vector_unsigned_long_long [simd_ctlz, vclzg] }
+
+    test_impl! { vec_clzb_unsigned +(a: vector_unsigned_char) -> vector_unsigned_char [simd_ctlz, vclzb] }
+    test_impl! { vec_clzh_unsigned +(a: vector_unsigned_short) -> vector_unsigned_short [simd_ctlz, vclzh] }
+    test_impl! { vec_clzf_unsigned +(a: vector_unsigned_int) -> vector_unsigned_int [simd_ctlz, vclzf] }
+    test_impl! { vec_clzg_unsigned +(a: vector_unsigned_long_long) -> vector_unsigned_long_long [simd_ctlz, vclzg] }
+
+    test_impl! { vec_ctzb_signed +(a: vector_signed_char) -> vector_unsigned_char [simd_cttz, vctzb] }
+    test_impl! { vec_ctzh_signed +(a: vector_signed_short) -> vector_unsigned_short [simd_cttz, vctzh] }
+    test_impl! { vec_ctzf_signed +(a: vector_signed_int) -> vector_unsigned_int [simd_cttz, vctzf] }
+    test_impl! { vec_ctzg_signed +(a: vector_signed_long_long) -> vector_unsigned_long_long [simd_cttz, vctzg] }
+
+    test_impl! { vec_ctzb_unsigned +(a: vector_unsigned_char) -> vector_unsigned_char [simd_cttz, vctzb] }
+    test_impl! { vec_ctzh_unsigned +(a: vector_unsigned_short) -> vector_unsigned_short [simd_cttz, vctzh] }
+    test_impl! { vec_ctzf_unsigned +(a: vector_unsigned_int) -> vector_unsigned_int [simd_cttz, vctzf] }
+    test_impl! { vec_ctzg_unsigned +(a: vector_unsigned_long_long) -> vector_unsigned_long_long [simd_cttz, vctzg] }
+
+    // FIXME(vector-enhancements-1) other integer types are emulated, but get their own
+    // instructions in later facilities. Add tests when possible.
+    test_impl! { vec_popcnt_signed +(a: vector_signed_char) -> vector_signed_char [simd_ctpop, vpopctb] }
+    test_impl! { vec_popcnt_unsigned +(a: vector_unsigned_char) -> vector_unsigned_char [simd_ctpop, vpopctb] }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorAnd<Other> {
+        type Result;
+        unsafe fn vec_and(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorAnd vec_and] ~(simd_and) }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorOr<Other> {
+        type Result;
+        unsafe fn vec_or(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorOr vec_or] ~(simd_or) }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorXor<Other> {
+        type Result;
+        unsafe fn vec_xor(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorXor vec_xor] ~(simd_xor) }
+
+    #[inline]
+    #[target_feature(enable = "vector")]
+    // FIXME(vector-enhancements-1) #[cfg_attr(test, assert_instr(vno))]
+    unsafe fn nor(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a: u8x16 = transmute(a);
+        let b: u8x16 = transmute(b);
+        transmute(simd_xor(simd_or(a, b), u8x16::splat(0xff)))
+    }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorNor<Other> {
+        type Result;
+        unsafe fn vec_nor(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorNor vec_nor]+ 2c (nor) }
+
+    #[inline]
+    #[target_feature(enable = "vector")]
+    // FIXME(vector-enhancements-1) #[cfg_attr(test, assert_instr(vnn))]
+    unsafe fn nand(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a: u8x16 = transmute(a);
+        let b: u8x16 = transmute(b);
+        transmute(simd_xor(simd_and(a, b), u8x16::splat(0xff)))
+    }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorNand<Other> {
+        type Result;
+        unsafe fn vec_nand(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorNand vec_nand]+ 2c (nand) }
+
+    #[inline]
+    #[target_feature(enable = "vector")]
+    // FIXME(vector-enhancements-1) #[cfg_attr(test, assert_instr(vnx))]
+    unsafe fn eqv(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a: u8x16 = transmute(a);
+        let b: u8x16 = transmute(b);
+        transmute(simd_xor(simd_xor(a, b), u8x16::splat(0xff)))
+    }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorEqv<Other> {
+        type Result;
+        unsafe fn vec_eqv(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorEqv vec_eqv]+ 2c (eqv) }
+
+    #[inline]
+    #[target_feature(enable = "vector")]
+    // FIXME(vector-enhancements-1) #[cfg_attr(test, assert_instr(vnc))]
+    unsafe fn andc(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a = transmute(a);
+        let b = transmute(b);
+        transmute(simd_and(simd_xor(u8x16::splat(0xff), b), a))
+    }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorAndc<Other> {
+        type Result;
+        unsafe fn vec_andc(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorAndc vec_andc]+ 2c (andc) }
+
+    #[inline]
+    #[target_feature(enable = "vector")]
+    // FIXME(vector-enhancements-1) #[cfg_attr(test, assert_instr(voc))]
+    unsafe fn orc(a: vector_signed_char, b: vector_signed_char) -> vector_signed_char {
+        let a = transmute(a);
+        let b = transmute(b);
+        transmute(simd_or(simd_xor(u8x16::splat(0xff), b), a))
+    }
+
+    #[unstable(feature = "stdarch_s390x", issue = "135681")]
+    pub trait VectorOrc<Other> {
+        type Result;
+        unsafe fn vec_orc(self, b: Other) -> Self::Result;
+    }
+
+    impl_vec_trait! { [VectorOrc vec_orc]+ 2c (orc) }
 }
 
 /// Vector element-wise addition.
@@ -489,6 +668,41 @@ where
     T: sealed::VectorMul,
 {
     a.vec_mul(b)
+}
+
+/// Vector Count Leading Zeros
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_cntlz<T>(a: T) -> <T as sealed::CountBits>::Result
+where
+    T: sealed::CountBits,
+{
+    a.vec_cntlz()
+}
+
+/// Vector Count Trailing Zeros
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_cnttz<T>(a: T) -> <T as sealed::CountBits>::Result
+where
+    T: sealed::CountBits,
+{
+    a.vec_cnttz()
+}
+
+/// Vector Population Count
+///
+/// Computes the population count (number of set bits) in each element of the input.
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_popcnt<T>(a: T) -> <T as sealed::CountBits>::Result
+where
+    T: sealed::CountBits,
+{
+    a.vec_popcnt()
 }
 
 /// Vector element-wise maximum.
@@ -533,6 +747,100 @@ where
     T: sealed::VectorSplats<U>,
 {
     a.vec_splats()
+}
+
+/// Vector and
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_and<T, U>(a: T, b: U) -> <T as sealed::VectorAnd<U>>::Result
+where
+    T: sealed::VectorAnd<U>,
+{
+    a.vec_and(b)
+}
+
+/// Vector or
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_or<T, U>(a: T, b: U) -> <T as sealed::VectorOr<U>>::Result
+where
+    T: sealed::VectorOr<U>,
+{
+    a.vec_or(b)
+}
+
+/// Vector xor
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_xor<T, U>(a: T, b: U) -> <T as sealed::VectorXor<U>>::Result
+where
+    T: sealed::VectorXor<U>,
+{
+    a.vec_xor(b)
+}
+
+/// Vector nor
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_nor<T, U>(a: T, b: U) -> <T as sealed::VectorNor<U>>::Result
+where
+    T: sealed::VectorNor<U>,
+{
+    a.vec_nor(b)
+}
+
+/// Vector nand
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_nand<T, U>(a: T, b: U) -> <T as sealed::VectorNand<U>>::Result
+where
+    T: sealed::VectorNand<U>,
+{
+    a.vec_nand(b)
+}
+
+/// Vector xnor
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_eqv<T, U>(a: T, b: U) -> <T as sealed::VectorEqv<U>>::Result
+where
+    T: sealed::VectorEqv<U>,
+{
+    a.vec_eqv(b)
+}
+
+/// Vector andc.
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_andc<T, U>(a: T, b: U) -> <T as sealed::VectorAndc<U>>::Result
+where
+    T: sealed::VectorAndc<U>,
+{
+    a.vec_andc(b)
+}
+
+/// Vector OR with Complement
+///
+/// ## Purpose
+/// Performs a bitwise OR of the first vector with the bitwise-complemented second vector.
+///
+/// ## Result value
+/// r is the bitwise OR of a and the bitwise complement of b.
+#[inline]
+#[target_feature(enable = "vector")]
+#[unstable(feature = "stdarch_s390x", issue = "135681")]
+pub unsafe fn vec_orc<T, U>(a: T, b: U) -> <T as sealed::VectorOrc<U>>::Result
+where
+    T: sealed::VectorOrc<U>,
+{
+    a.vec_orc(b)
 }
 
 #[cfg(test)]
@@ -711,4 +1019,44 @@ mod tests {
     test_vec_abs! { test_vec_abs_i64, i64x2, -42i64, 42i64 }
     test_vec_abs! { test_vec_abs_f32, f32x4, -42f32, 42f32 }
     test_vec_abs! { test_vec_abs_f64, f64x2, -42f64, 42f64 }
+
+    test_vec_2! { test_vec_andc, vec_andc, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b10000000],
+    [0b11001100, 0b00001100, 0b11000000, 0b01001100] }
+
+    test_vec_2! { test_vec_and, vec_and, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [0b00000000, 0b11000000, 0b00001100, 0b00000000] }
+
+    test_vec_2! { test_vec_nand, vec_nand, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [!0b00000000, !0b11000000, !0b00001100, !0b00000000] }
+
+    test_vec_2! { test_vec_orc, vec_orc, u32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [0b11001100 | !0b00110011, 0b11001100 | !0b11110011, 0b11001100 | !0b00001100, 0b11001100 | !0b00000000] }
+
+    test_vec_2! { test_vec_or, vec_or, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [0b11111111, 0b11111111, 0b11001100, 0b11001100] }
+
+    test_vec_2! { test_vec_nor, vec_nor, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [!0b11111111, !0b11111111, !0b11001100, !0b11001100] }
+
+    test_vec_2! { test_vec_xor, vec_xor, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [0b11111111, 0b00111111, 0b11000000, 0b11001100] }
+
+    test_vec_2! { test_vec_eqv, vec_eqv, i32x4,
+    [0b11001100, 0b11001100, 0b11001100, 0b11001100],
+    [0b00110011, 0b11110011, 0b00001100, 0b00000000],
+    [!0b11111111, !0b00111111, !0b11000000, !0b11001100] }
 }

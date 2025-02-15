@@ -48,7 +48,7 @@ types! {
 }
 
 #[allow(improper_ctypes)]
-extern "C" {
+unsafe extern "C" {
     #[link_name = "llvm.ppc.altivec.lvx"]
     fn lvx(p: *const i8) -> vector_unsigned_int;
 
@@ -688,7 +688,7 @@ mod sealed {
                 let addr = (b as *const u8).offset(a);
 
                 // Workaround ptr::copy_nonoverlapping not being inlined
-                extern "rust-intrinsic" {
+                unsafe extern "rust-intrinsic" {
                     #[rustc_nounwind]
                     pub fn copy_nonoverlapping<T>(src: *const T, dst: *mut T, count: usize);
                 }
@@ -743,7 +743,7 @@ mod sealed {
                 let addr = (b as *mut u8).offset(a);
 
                 // Workaround ptr::copy_nonoverlapping not being inlined
-                extern "rust-intrinsic" {
+                unsafe extern "rust-intrinsic" {
                     #[rustc_nounwind]
                     pub fn copy_nonoverlapping<T>(src: *const T, dst: *mut T, count: usize);
                 }
@@ -4720,7 +4720,9 @@ mod tests {
             let v: u8x16 = transmute(vec_ld(0, (pat.as_ptr() as *const u8).offset(off)));
             assert_eq!(
                 v,
-                u8x16::new(16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
+                u8x16::new(
+                    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+                )
             );
         }
     }
@@ -4778,7 +4780,9 @@ mod tests {
             let v: u8x16 = transmute(vec_ldl(0, (pat.as_ptr() as *const u8).offset(off)));
             assert_eq!(
                 v,
-                u8x16::new(16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)
+                u8x16::new(
+                    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+                )
             );
         }
     }

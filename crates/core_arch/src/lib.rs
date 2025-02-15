@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 #![allow(unused_features)]
 #![allow(internal_features)]
+#![allow(unsafe_op_in_unsafe_fn)]
 #![deny(rust_2018_idioms)]
 #![feature(
     custom_inner_attributes,
@@ -32,12 +33,12 @@
     rtm_target_feature,
     allow_internal_unstable,
     decl_macro,
-    target_feature_11,
     generic_arg_infer,
     asm_experimental_arch,
     sha512_sm_x86,
     x86_amx_intrinsics,
-    f16
+    f16,
+    keylocker_x86
 )]
 #![cfg_attr(test, feature(test, abi_vectorcall, stdarch_internal))]
 #![deny(clippy::missing_inline_in_public_items)]

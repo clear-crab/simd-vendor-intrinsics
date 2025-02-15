@@ -1,7 +1,7 @@
-use crate::core_arch::arm_shared::{uint32x4_t, uint8x16_t};
+use crate::core_arch::arm_shared::{uint8x16_t, uint32x4_t};
 
 #[allow(improper_ctypes)]
-extern "unadjusted" {
+unsafe extern "unadjusted" {
     #[cfg_attr(
         any(target_arch = "aarch64", target_arch = "arm64ec"),
         link_name = "llvm.aarch64.crypto.aese"
@@ -418,7 +418,9 @@ mod tests {
         let r: u8x16 = mem::transmute(vaesimcq_u8(data));
         assert_eq!(
             r,
-            u8x16::new(43, 60, 33, 50, 103, 80, 125, 70, 43, 60, 33, 50, 103, 80, 125, 70)
+            u8x16::new(
+                43, 60, 33, 50, 103, 80, 125, 70, 43, 60, 33, 50, 103, 80, 125, 70
+            )
         );
     }
 

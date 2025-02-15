@@ -3638,7 +3638,7 @@ pub unsafe fn _mm256_extract_epi16<const INDEX: i32>(a: __m256i) -> i32 {
 }
 
 #[allow(improper_ctypes)]
-extern "C" {
+unsafe extern "C" {
     #[link_name = "llvm.x86.avx2.phadd.w"]
     fn phaddw(a: i16x16, b: i16x16) -> i16x16;
     #[link_name = "llvm.x86.avx2.phadd.d"]
@@ -3785,7 +3785,7 @@ extern "C" {
     ) -> __m256d;
     #[link_name = "llvm.x86.avx2.gather.d.ps"]
     fn pgatherdps(src: __m128, slice: *const i8, offsets: i32x4, mask: __m128, scale: i8)
-        -> __m128;
+    -> __m128;
     #[link_name = "llvm.x86.avx2.gather.d.ps.256"]
     fn vpgatherdps(
         src: __m256,
@@ -3796,7 +3796,7 @@ extern "C" {
     ) -> __m256;
     #[link_name = "llvm.x86.avx2.gather.q.ps"]
     fn pgatherqps(src: __m128, slice: *const i8, offsets: i64x2, mask: __m128, scale: i8)
-        -> __m128;
+    -> __m128;
     #[link_name = "llvm.x86.avx2.gather.q.ps.256"]
     fn vpgatherqps(
         src: __m128,

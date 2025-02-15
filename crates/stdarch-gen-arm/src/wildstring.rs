@@ -1,6 +1,6 @@
 use itertools::Itertools;
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt, quote};
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::str::pattern::Pattern;
 use std::{fmt, str::FromStr};
@@ -90,7 +90,7 @@ impl WildString {
         self.iter_mut().try_for_each(|wp| -> Result<(), String> {
             if let WildStringPart::Wildcard(w) = wp {
                 match w {
-                    Wildcard::NEONType(_, _, ref maybe_suffix_kind) => {
+                    &mut Wildcard::NEONType(_, _, ref maybe_suffix_kind) => {
                         if let Some(suffix_kind) = maybe_suffix_kind {
                             let x = ctx.provide_type_wildcard(w).unwrap();
                             *wp = WildStringPart::String(make_neon_suffix(x, *suffix_kind))
@@ -111,7 +111,7 @@ impl WildString {
                 self.iter_mut().try_for_each(|wp| -> Result<(), String> {
                     if let WildStringPart::Wildcard(w) = wp {
                         match w {
-                            Wildcard::NEONType(_, _, ref maybe_suffix_kind) => {
+                            &mut Wildcard::NEONType(_, _, ref maybe_suffix_kind) => {
                                 if let Some(suffix_kind) = maybe_suffix_kind {
                                     let x = ctx.provide_type_wildcard(w).unwrap();
                                     *wp = WildStringPart::String(make_neon_suffix(x, *suffix_kind))

@@ -26220,12 +26220,16 @@ pub unsafe fn _mm512_alignr_epi32<const IMM8: i32>(a: __m512i, b: __m512i) -> __
         0 => simd_shuffle!(
             a,
             b,
-            [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,],
+            [
+                16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+            ],
         ),
         1 => simd_shuffle!(
             a,
             b,
-            [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0,],
+            [
+                17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 0,
+            ],
         ),
         2 => simd_shuffle!(
             a,
@@ -40275,7 +40279,7 @@ pub const _MM_PERM_DDDC: _MM_PERM_ENUM = 0xFE;
 pub const _MM_PERM_DDDD: _MM_PERM_ENUM = 0xFF;
 
 #[allow(improper_ctypes)]
-extern "C" {
+unsafe extern "C" {
     #[link_name = "llvm.x86.avx512.sqrt.ps.512"]
     fn vsqrtps(a: f32x16, rounding: i32) -> f32x16;
     #[link_name = "llvm.x86.avx512.sqrt.pd.512"]

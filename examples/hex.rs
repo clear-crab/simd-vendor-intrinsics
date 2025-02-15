@@ -29,6 +29,7 @@
     clippy::cast_sign_loss,
     clippy::missing_docs_in_private_items
 )]
+#![allow(unsafe_op_in_unsafe_fn)]
 
 use std::{
     io::{self, Read},
@@ -329,7 +330,7 @@ mod benches {
     ) {
         let mut rng = rand::thread_rng();
         let input = std::iter::repeat(())
-            .map(|()| rng.gen::<u8>())
+            .map(|()| rng.r#gen::<u8>())
             .take(len)
             .collect::<Vec<_>>();
         let mut dst = vec![0; input.len() * 2];
