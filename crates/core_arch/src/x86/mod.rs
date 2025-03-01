@@ -47,6 +47,7 @@ types! {
     ///
     /// # fn main() {
     /// # #[target_feature(enable = "sse2")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let all_bytes_zero = _mm_setzero_si128();
     /// let all_bytes_one = _mm_set1_epi8(1);
@@ -89,6 +90,7 @@ types! {
     ///
     /// # fn main() {
     /// # #[target_feature(enable = "sse")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let four_zeros = _mm_setzero_ps();
     /// let four_ones = _mm_set1_ps(1.0);
@@ -130,13 +132,14 @@ types! {
     /// use std::arch::x86_64::*;
     ///
     /// # fn main() {
-    /// # #[target_feature(enable = "sse")]
+    /// # #[target_feature(enable = "sse2")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let two_zeros = _mm_setzero_pd();
     /// let two_ones = _mm_set1_pd(1.0);
     /// let two_floats = _mm_set_pd(1.0, 2.0);
     /// # }}
-    /// # if is_x86_feature_detected!("sse") { unsafe { foo() } }
+    /// # if is_x86_feature_detected!("sse2") { unsafe { foo() } }
     /// # }
     /// ```
     pub struct __m128d(2 x f64);
@@ -177,6 +180,7 @@ types! {
     ///
     /// # fn main() {
     /// # #[target_feature(enable = "avx")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let all_bytes_zero = _mm256_setzero_si256();
     /// let all_bytes_one = _mm256_set1_epi8(1);
@@ -219,6 +223,7 @@ types! {
     ///
     /// # fn main() {
     /// # #[target_feature(enable = "avx")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let eight_zeros = _mm256_setzero_ps();
     /// let eight_ones = _mm256_set1_ps(1.0);
@@ -261,6 +266,7 @@ types! {
     ///
     /// # fn main() {
     /// # #[target_feature(enable = "avx")]
+    /// # #[allow(unused_unsafe)] // temporary, to unstick CI
     /// # unsafe fn foo() { unsafe {
     /// let four_zeros = _mm256_setzero_pd();
     /// let four_ones = _mm256_set1_pd(1.0);
