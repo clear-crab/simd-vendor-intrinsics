@@ -102,13 +102,37 @@ macro_rules! types {
                 // a simd type with exactly one element.
                 unsafe { simd_shuffle!(one, one, [0; $len]) }
             }
+
+            /// Returns an array reference containing the entire SIMD vector.
+            $v const fn as_array(&self) -> &[$elem_type; $len] {
+                // SAFETY: this type is just an overaligned `[T; N]` with
+                // potential padding at the end, so pointer casting to a
+                // `&[T; N]` is safe.
+                //
+                // NOTE: This deliberately doesn't just use `&self.0` because it may soon be banned
+                // see https://github.com/rust-lang/compiler-team/issues/838
+                unsafe { &*(self as *const Self as *const [$elem_type; $len]) }
+
+            }
+
+            /// Returns a mutable array reference containing the entire SIMD vector.
+            #[inline]
+            $v fn as_mut_array(&mut self) -> &mut [$elem_type; $len] {
+                // SAFETY: this type is just an overaligned `[T; N]` with
+                // potential padding at the end, so pointer casting to a
+                // `&mut [T; N]` is safe.
+                //
+                // NOTE: This deliberately doesn't just use `&mut self.0` because it may soon be banned
+                // see https://github.com/rust-lang/compiler-team/issues/838
+                unsafe { &mut *(self as *mut Self as *mut [$elem_type; $len]) }
+            }
         }
 
         $(#[$stability])+
         impl crate::fmt::Debug for $name {
             #[inline]
             fn fmt(&self, f: &mut crate::fmt::Formatter<'_>) -> crate::fmt::Result {
-                crate::core_arch::simd::debug_simd_finish(f, stringify!($name), self.0)
+                crate::core_arch::simd::debug_simd_finish(f, stringify!($name), self.as_array())
             }
         }
     )*);

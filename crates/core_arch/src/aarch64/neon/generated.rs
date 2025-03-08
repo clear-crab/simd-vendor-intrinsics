@@ -821,6 +821,102 @@ pub fn vaddvq_u64(a: uint64x2_t) -> u64 {
     }
     unsafe { _vaddvq_u64(a) }
 }
+#[doc = "Multi-vector floating-point absolute maximum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vamax_f32)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vamax_f32(a: float32x2_t, b: float32x2_t) -> float32x2_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famax.v2f32"
+        )]
+        fn _vamax_f32(a: float32x2_t, b: float32x2_t) -> float32x2_t;
+    }
+    unsafe { _vamax_f32(a, b) }
+}
+#[doc = "Multi-vector floating-point absolute maximum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vamaxq_f32)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vamaxq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famax.v4f32"
+        )]
+        fn _vamaxq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t;
+    }
+    unsafe { _vamaxq_f32(a, b) }
+}
+#[doc = "Multi-vector floating-point absolute maximum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vamaxq_f64)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vamaxq_f64(a: float64x2_t, b: float64x2_t) -> float64x2_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famax.v2f64"
+        )]
+        fn _vamaxq_f64(a: float64x2_t, b: float64x2_t) -> float64x2_t;
+    }
+    unsafe { _vamaxq_f64(a, b) }
+}
+#[doc = "Multi-vector floating-point absolute minimum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vamin_f32)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vamin_f32(a: float32x2_t, b: float32x2_t) -> float32x2_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famin.v2f32"
+        )]
+        fn _vamin_f32(a: float32x2_t, b: float32x2_t) -> float32x2_t;
+    }
+    unsafe { _vamin_f32(a, b) }
+}
+#[doc = "Multi-vector floating-point absolute minimum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vaminq_f32)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vaminq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famin.v4f32"
+        )]
+        fn _vaminq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t;
+    }
+    unsafe { _vaminq_f32(a, b) }
+}
+#[doc = "Multi-vector floating-point absolute minimum"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vaminq_f64)"]
+#[inline]
+#[target_feature(enable = "neon,faminmax")]
+#[cfg_attr(test, assert_instr(nop))]
+#[unstable(feature = "faminmax", issue = "137933")]
+pub fn vaminq_f64(a: float64x2_t, b: float64x2_t) -> float64x2_t {
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.famin.v2f64"
+        )]
+        fn _vaminq_f64(a: float64x2_t, b: float64x2_t) -> float64x2_t;
+    }
+    unsafe { _vaminq_f64(a, b) }
+}
 #[doc = "Bit clear and exclusive OR"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vbcaxq_s8)"]
 #[inline]
@@ -11631,8 +11727,8 @@ pub unsafe fn vld2q_dup_p64(a: *const p64) -> poly64x2x2_t {
 #[cfg_attr(test, assert_instr(ld2r))]
 pub unsafe fn vld2q_dup_p64(a: *const p64) -> poly64x2x2_t {
     let mut ret_val: poly64x2x2_t = transmute(vld2q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
     ret_val
 }
 #[doc = "Load single 2-element structure and replicate to all lanes of two registers"]
@@ -11658,8 +11754,8 @@ pub unsafe fn vld2q_dup_u64(a: *const u64) -> uint64x2x2_t {
 #[cfg_attr(test, assert_instr(ld2r))]
 pub unsafe fn vld2q_dup_u64(a: *const u64) -> uint64x2x2_t {
     let mut ret_val: uint64x2x2_t = transmute(vld2q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 2-element structures to two registers"]
@@ -11834,8 +11930,8 @@ pub unsafe fn vld2q_p64(a: *const p64) -> poly64x2x2_t {
 #[cfg_attr(test, assert_instr(ld2))]
 pub unsafe fn vld2q_p64(a: *const p64) -> poly64x2x2_t {
     let mut ret_val: poly64x2x2_t = transmute(vld2q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 2-element structures to two registers"]
@@ -11861,8 +11957,8 @@ pub unsafe fn vld2q_u64(a: *const u64) -> uint64x2x2_t {
 #[cfg_attr(test, assert_instr(ld2))]
 pub unsafe fn vld2q_u64(a: *const u64) -> uint64x2x2_t {
     let mut ret_val: uint64x2x2_t = transmute(vld2q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
     ret_val
 }
 #[doc = "Load single 3-element structure and replicate to all lanes of three registers"]
@@ -12038,9 +12134,9 @@ pub unsafe fn vld3q_dup_p64(a: *const p64) -> poly64x2x3_t {
 #[cfg_attr(test, assert_instr(ld3r))]
 pub unsafe fn vld3q_dup_p64(a: *const p64) -> poly64x2x3_t {
     let mut ret_val: poly64x2x3_t = transmute(vld3q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
     ret_val
 }
 #[doc = "Load single 3-element structure and replicate to all lanes of three registers"]
@@ -12066,9 +12162,9 @@ pub unsafe fn vld3q_dup_u64(a: *const u64) -> uint64x2x3_t {
 #[cfg_attr(test, assert_instr(ld3r))]
 pub unsafe fn vld3q_dup_u64(a: *const u64) -> uint64x2x3_t {
     let mut ret_val: uint64x2x3_t = transmute(vld3q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 3-element structures to three registers"]
@@ -12260,9 +12356,9 @@ pub unsafe fn vld3q_p64(a: *const p64) -> poly64x2x3_t {
 #[cfg_attr(test, assert_instr(ld3))]
 pub unsafe fn vld3q_p64(a: *const p64) -> poly64x2x3_t {
     let mut ret_val: poly64x2x3_t = transmute(vld3q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 3-element structures to three registers"]
@@ -12288,9 +12384,9 @@ pub unsafe fn vld3q_u64(a: *const u64) -> uint64x2x3_t {
 #[cfg_attr(test, assert_instr(ld3))]
 pub unsafe fn vld3q_u64(a: *const u64) -> uint64x2x3_t {
     let mut ret_val: uint64x2x3_t = transmute(vld3q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
     ret_val
 }
 #[doc = "Load single 4-element structure and replicate to all lanes of four registers"]
@@ -12468,10 +12564,10 @@ pub unsafe fn vld4q_dup_p64(a: *const p64) -> poly64x2x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vld4q_dup_p64(a: *const p64) -> poly64x2x4_t {
     let mut ret_val: poly64x2x4_t = transmute(vld4q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
-    ret_val.3 = simd_shuffle!(ret_val.3, ret_val.3, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
+    ret_val.3 = unsafe { simd_shuffle!(ret_val.3, ret_val.3, [1, 0]) };
     ret_val
 }
 #[doc = "Load single 4-element structure and replicate to all lanes of four registers"]
@@ -12497,10 +12593,10 @@ pub unsafe fn vld4q_dup_u64(a: *const u64) -> uint64x2x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub unsafe fn vld4q_dup_u64(a: *const u64) -> uint64x2x4_t {
     let mut ret_val: uint64x2x4_t = transmute(vld4q_dup_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
-    ret_val.3 = simd_shuffle!(ret_val.3, ret_val.3, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
+    ret_val.3 = unsafe { simd_shuffle!(ret_val.3, ret_val.3, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 4-element structures to four registers"]
@@ -12695,10 +12791,10 @@ pub unsafe fn vld4q_p64(a: *const p64) -> poly64x2x4_t {
 #[cfg_attr(test, assert_instr(ld4))]
 pub unsafe fn vld4q_p64(a: *const p64) -> poly64x2x4_t {
     let mut ret_val: poly64x2x4_t = transmute(vld4q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
-    ret_val.3 = simd_shuffle!(ret_val.3, ret_val.3, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
+    ret_val.3 = unsafe { simd_shuffle!(ret_val.3, ret_val.3, [1, 0]) };
     ret_val
 }
 #[doc = "Load multiple 4-element structures to four registers"]
@@ -12724,11 +12820,408 @@ pub unsafe fn vld4q_u64(a: *const u64) -> uint64x2x4_t {
 #[cfg_attr(test, assert_instr(ld4))]
 pub unsafe fn vld4q_u64(a: *const u64) -> uint64x2x4_t {
     let mut ret_val: uint64x2x4_t = transmute(vld4q_s64(transmute(a)));
-    ret_val.0 = simd_shuffle!(ret_val.0, ret_val.0, [1, 0]);
-    ret_val.1 = simd_shuffle!(ret_val.1, ret_val.1, [1, 0]);
-    ret_val.2 = simd_shuffle!(ret_val.2, ret_val.2, [1, 0]);
-    ret_val.3 = simd_shuffle!(ret_val.3, ret_val.3, [1, 0]);
+    ret_val.0 = unsafe { simd_shuffle!(ret_val.0, ret_val.0, [1, 0]) };
+    ret_val.1 = unsafe { simd_shuffle!(ret_val.1, ret_val.1, [1, 0]) };
+    ret_val.2 = unsafe { simd_shuffle!(ret_val.2, ret_val.2, [1, 0]) };
+    ret_val.3 = unsafe { simd_shuffle!(ret_val.3, ret_val.3, [1, 0]) };
     ret_val
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_s8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_s8<const LANE: i32>(a: int8x8_t, b: uint8x8_t) -> int8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti2.lane.v16i8.v8i8"
+        )]
+        fn _vluti2_lane_s8(a: int8x8_t, b: uint8x8_t, n: i32) -> int8x16_t;
+    }
+    _vluti2_lane_s8(a, b, LANE)
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_s8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_s8<const LANE: i32>(a: int8x16_t, b: uint8x8_t) -> int8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti2.lane.v16i8.v16i8"
+        )]
+        fn _vluti2q_lane_s8(a: int8x16_t, b: uint8x8_t, n: i32) -> int8x16_t;
+    }
+    _vluti2q_lane_s8(a, b, LANE)
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_s16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_s16<const LANE: i32>(a: int16x4_t, b: uint8x8_t) -> int16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti2.lane.v8i16.v4i16"
+        )]
+        fn _vluti2_lane_s16(a: int16x4_t, b: uint8x8_t, n: i32) -> int16x8_t;
+    }
+    _vluti2_lane_s16(a, b, LANE)
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_s16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_s16<const LANE: i32>(a: int16x8_t, b: uint8x8_t) -> int16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti2.lane.v8i16.v8i16"
+        )]
+        fn _vluti2q_lane_s16(a: int16x8_t, b: uint8x8_t, n: i32) -> int16x8_t;
+    }
+    _vluti2q_lane_s16(a, b, LANE)
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_u8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_u8<const LANE: i32>(a: uint8x8_t, b: uint8x8_t) -> uint8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti2_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_u8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_u8<const LANE: i32>(a: uint8x16_t, b: uint8x8_t) -> uint8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti2q_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_u16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_u16<const LANE: i32>(a: uint16x4_t, b: uint8x8_t) -> uint16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti2_lane_s16::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_u16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_u16<const LANE: i32>(a: uint16x8_t, b: uint8x8_t) -> uint16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti2q_lane_s16::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_p8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_p8<const LANE: i32>(a: poly8x8_t, b: uint8x8_t) -> poly8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti2_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_p8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_p8<const LANE: i32>(a: poly8x16_t, b: uint8x8_t) -> poly8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti2q_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2_lane_p16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2_lane_p16<const LANE: i32>(a: poly16x4_t, b: uint8x8_t) -> poly16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti2_lane_s16::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 2-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti2q_lane_p16)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 1))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti2q_lane_p16<const LANE: i32>(a: poly16x8_t, b: uint8x8_t) -> poly16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti2q_lane_s16::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_f16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut,fp16")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_f16_x2<const LANE: i32>(a: float16x8x2_t, b: uint8x8_t) -> float16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti4q_lane_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_u16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_u16_x2<const LANE: i32>(a: uint16x8x2_t, b: uint8x8_t) -> uint16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti4q_lane_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_p16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_p16_x2<const LANE: i32>(a: poly16x8x2_t, b: uint8x8_t) -> poly16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti4q_lane_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_s16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_s16_x2<const LANE: i32>(a: int16x8x2_t, b: uint8x8_t) -> int16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti4q.lane.x2.v8i16"
+        )]
+        fn _vluti4q_lane_s16_x2(a: int16x8_t, a: int16x8_t, b: uint8x8_t, n: i32) -> int16x8_t;
+    }
+    _vluti4q_lane_s16_x2(a.0, a.1, b, LANE)
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_s8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_s8<const LANE: i32>(a: int8x16_t, b: uint8x8_t) -> int8x16_t {
+    static_assert!(LANE == 0);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti4q.lane.v8i8"
+        )]
+        fn _vluti4q_lane_s8(a: int8x16_t, b: uint8x8_t, n: i32) -> int8x16_t;
+    }
+    _vluti4q_lane_s8(a, b, LANE)
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_u8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_u8<const LANE: i32>(a: uint8x16_t, b: uint8x8_t) -> uint8x16_t {
+    static_assert!(LANE == 0);
+    transmute(vluti4q_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_lane_p8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_lane_p8<const LANE: i32>(a: poly8x16_t, b: uint8x8_t) -> poly8x16_t {
+    static_assert!(LANE == 0);
+    transmute(vluti4q_lane_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_f16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut,fp16")]
+#[cfg_attr(test, assert_instr(nop, LANE = 3))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_f16_x2<const LANE: i32>(
+    a: float16x8x2_t,
+    b: uint8x16_t,
+) -> float16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti4q_laneq_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_u16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 3))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_u16_x2<const LANE: i32>(a: uint16x8x2_t, b: uint8x16_t) -> uint16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti4q_laneq_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_p16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 3))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_p16_x2<const LANE: i32>(a: poly16x8x2_t, b: uint8x16_t) -> poly16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    transmute(vluti4q_laneq_s16_x2::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_s16_x2)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 3))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_s16_x2<const LANE: i32>(a: int16x8x2_t, b: uint8x16_t) -> int16x8_t {
+    static_assert!(LANE >= 0 && LANE <= 3);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti4q.laneq.x2.v8i16"
+        )]
+        fn _vluti4q_laneq_s16_x2(a: int16x8_t, b: int16x8_t, c: uint8x16_t, n: i32) -> int16x8_t;
+    }
+    _vluti4q_laneq_s16_x2(a.0, a.1, b, LANE)
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_s8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_s8<const LANE: i32>(a: int8x16_t, b: uint8x16_t) -> int8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    unsafe extern "unadjusted" {
+        #[cfg_attr(
+            any(target_arch = "aarch64", target_arch = "arm64ec"),
+            link_name = "llvm.aarch64.neon.vluti4q.laneq.v16i8"
+        )]
+        fn _vluti4q_laneq_s8(a: int8x16_t, b: uint8x16_t, n: i32) -> int8x16_t;
+    }
+    _vluti4q_laneq_s8(a, b, LANE)
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_u8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_u8<const LANE: i32>(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti4q_laneq_s8::<LANE>(transmute(a), b))
+}
+#[doc = "Lookup table read with 4-bit indices"]
+#[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vluti4q_laneq_p8)"]
+#[doc = "## Safety"]
+#[doc = "  * Neon instrinsic unsafe"]
+#[inline]
+#[target_feature(enable = "neon,lut")]
+#[cfg_attr(test, assert_instr(nop, LANE = 0))]
+#[unstable(feature = "stdarch_neon_feat_lut", issue = "138050")]
+#[rustc_legacy_const_generics(2)]
+pub unsafe fn vluti4q_laneq_p8<const LANE: i32>(a: poly8x16_t, b: uint8x16_t) -> poly8x16_t {
+    static_assert!(LANE >= 0 && LANE <= 1);
+    transmute(vluti4q_laneq_s8::<LANE>(transmute(a), b))
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_f64)"]
@@ -15522,7 +16015,7 @@ pub fn vpaddd_s64(a: int64x2_t) -> i64 {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(addp))]
 pub fn vpaddd_s64(a: int64x2_t) -> i64 {
-    let a: int64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: int64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(vaddvq_u64(transmute(a))) }
 }
 #[doc = "Add pairwise"]
@@ -15664,8 +16157,10 @@ pub fn vpaddq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(addp))]
 pub fn vpaddq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vpaddq_s8(transmute(a), transmute(b)));
         simd_shuffle!(
@@ -15693,8 +16188,8 @@ pub fn vpaddq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(addp))]
 pub fn vpaddq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
-    let a: uint16x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint16x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint16x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint16x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint16x8_t = transmute(vpaddq_s16(transmute(a), transmute(b)));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -15718,8 +16213,8 @@ pub fn vpaddq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(addp))]
 pub fn vpaddq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t {
-    let a: uint32x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
-    let b: uint32x4_t = simd_shuffle!(b, b, [3, 2, 1, 0]);
+    let a: uint32x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
+    let b: uint32x4_t = unsafe { simd_shuffle!(b, b, [3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint32x4_t = transmute(vpaddq_s32(transmute(a), transmute(b)));
         simd_shuffle!(ret_val, ret_val, [3, 2, 1, 0])
@@ -15743,8 +16238,8 @@ pub fn vpaddq_u64(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(addp))]
 pub fn vpaddq_u64(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
-    let a: uint64x2_t = simd_shuffle!(a, a, [1, 0]);
-    let b: uint64x2_t = simd_shuffle!(b, b, [1, 0]);
+    let a: uint64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
+    let b: uint64x2_t = unsafe { simd_shuffle!(b, b, [1, 0]) };
     unsafe {
         let ret_val: uint64x2_t = transmute(vpaddq_s64(transmute(a), transmute(b)));
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -19159,17 +19654,21 @@ pub fn vqtbl2_u8(a: uint8x16x2_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl2_u8(a: uint8x16x2_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x16x2_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbl2(transmute(a.0), transmute(a.1), b));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -19194,17 +19693,22 @@ pub fn vqtbl2q_u8(a: uint8x16x2_t, b: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl2q_u8(a: uint8x16x2_t, b: uint8x16_t) -> uint8x16_t {
     let mut a: uint8x16x2_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vqtbl2q(transmute(a.0), transmute(a.1), b));
         simd_shuffle!(
@@ -19233,17 +19737,21 @@ pub fn vqtbl2_p8(a: poly8x16x2_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl2_p8(a: poly8x16x2_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x16x2_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbl2(transmute(a.0), transmute(a.1), b));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -19268,17 +19776,22 @@ pub fn vqtbl2q_p8(a: poly8x16x2_t, b: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl2q_p8(a: poly8x16x2_t, b: uint8x16_t) -> poly8x16_t {
     let mut a: poly8x16x2_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(vqtbl2q(transmute(a.0), transmute(a.1), b));
         simd_shuffle!(
@@ -19357,22 +19870,28 @@ pub fn vqtbl3_u8(a: uint8x16x3_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl3_u8(a: uint8x16x3_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x16x3_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t =
             transmute(vqtbl3(transmute(a.0), transmute(a.1), transmute(a.2), b));
@@ -19398,22 +19917,29 @@ pub fn vqtbl3q_u8(a: uint8x16x3_t, b: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl3q_u8(a: uint8x16x3_t, b: uint8x16_t) -> uint8x16_t {
     let mut a: uint8x16x3_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t =
             transmute(vqtbl3q(transmute(a.0), transmute(a.1), transmute(a.2), b));
@@ -19443,22 +19969,28 @@ pub fn vqtbl3_p8(a: poly8x16x3_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl3_p8(a: poly8x16x3_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x16x3_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t =
             transmute(vqtbl3(transmute(a.0), transmute(a.1), transmute(a.2), b));
@@ -19484,22 +20016,29 @@ pub fn vqtbl3q_p8(a: poly8x16x3_t, b: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl3q_p8(a: poly8x16x3_t, b: uint8x16_t) -> poly8x16_t {
     let mut a: poly8x16x3_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t =
             transmute(vqtbl3q(transmute(a.0), transmute(a.1), transmute(a.2), b));
@@ -19599,27 +20138,35 @@ pub fn vqtbl4_u8(a: uint8x16x4_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl4_u8(a: uint8x16x4_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x16x4_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.3 = simd_shuffle!(
-        a.3,
-        a.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.3 = unsafe {
+        simd_shuffle!(
+            a.3,
+            a.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbl4(
             transmute(a.0),
@@ -19658,27 +20205,36 @@ pub fn vqtbl4q_u8(a: uint8x16x4_t, b: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl4q_u8(a: uint8x16x4_t, b: uint8x16_t) -> uint8x16_t {
     let mut a: uint8x16x4_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.3 = simd_shuffle!(
-        a.3,
-        a.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.3 = unsafe {
+        simd_shuffle!(
+            a.3,
+            a.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vqtbl4q(
             transmute(a.0),
@@ -19721,27 +20277,35 @@ pub fn vqtbl4_p8(a: poly8x16x4_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl4_p8(a: poly8x16x4_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x16x4_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.3 = simd_shuffle!(
-        a.3,
-        a.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.3 = unsafe {
+        simd_shuffle!(
+            a.3,
+            a.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbl4(
             transmute(a.0),
@@ -19780,27 +20344,36 @@ pub fn vqtbl4q_p8(a: poly8x16x4_t, b: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbl4q_p8(a: poly8x16x4_t, b: uint8x16_t) -> poly8x16_t {
     let mut a: poly8x16x4_t = a;
-    a.0 = simd_shuffle!(
-        a.0,
-        a.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.1 = simd_shuffle!(
-        a.1,
-        a.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.2 = simd_shuffle!(
-        a.2,
-        a.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    a.3 = simd_shuffle!(
-        a.3,
-        a.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let b: uint8x16_t = simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe {
+        simd_shuffle!(
+            a.0,
+            a.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.1 = unsafe {
+        simd_shuffle!(
+            a.1,
+            a.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.2 = unsafe {
+        simd_shuffle!(
+            a.2,
+            a.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    a.3 = unsafe {
+        simd_shuffle!(
+            a.3,
+            a.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let b: uint8x16_t =
+        unsafe { simd_shuffle!(b, b, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(vqtbl4q(
             transmute(a.0),
@@ -19983,18 +20556,22 @@ pub fn vqtbx2_u8(a: uint8x8_t, b: uint8x16x2_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx2_u8(a: uint8x8_t, b: uint8x16x2_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x16x2_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbx2(transmute(a), transmute(b.0), transmute(b.1), c));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -20019,18 +20596,24 @@ pub fn vqtbx2q_u8(a: uint8x16_t, b: uint8x16x2_t, c: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx2q_u8(a: uint8x16_t, b: uint8x16x2_t, c: uint8x16_t) -> uint8x16_t {
     let mut b: uint8x16x2_t = b;
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t =
             transmute(vqtbx2q(transmute(a), transmute(b.0), transmute(b.1), c));
@@ -20060,18 +20643,22 @@ pub fn vqtbx2_p8(a: poly8x8_t, b: poly8x16x2_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx2_p8(a: poly8x8_t, b: poly8x16x2_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x16x2_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbx2(transmute(a), transmute(b.0), transmute(b.1), c));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -20096,18 +20683,24 @@ pub fn vqtbx2q_p8(a: poly8x16_t, b: poly8x16x2_t, c: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx2q_p8(a: poly8x16_t, b: poly8x16x2_t, c: uint8x16_t) -> poly8x16_t {
     let mut b: poly8x16x2_t = b;
-    let a: poly8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t =
             transmute(vqtbx2q(transmute(a), transmute(b.0), transmute(b.1), c));
@@ -20202,23 +20795,29 @@ pub fn vqtbx3_u8(a: uint8x8_t, b: uint8x16x3_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx3_u8(a: uint8x8_t, b: uint8x16x3_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x16x3_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbx3(
             transmute(a),
@@ -20257,23 +20856,31 @@ pub fn vqtbx3q_u8(a: uint8x16_t, b: uint8x16x3_t, c: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx3q_u8(a: uint8x16_t, b: uint8x16x3_t, c: uint8x16_t) -> uint8x16_t {
     let mut b: uint8x16x3_t = b;
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vqtbx3q(
             transmute(a),
@@ -20316,23 +20923,29 @@ pub fn vqtbx3_p8(a: poly8x8_t, b: poly8x16x3_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx3_p8(a: poly8x8_t, b: poly8x16x3_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x16x3_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbx3(
             transmute(a),
@@ -20371,23 +20984,31 @@ pub fn vqtbx3q_p8(a: poly8x16_t, b: poly8x16x3_t, c: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx3q_p8(a: poly8x16_t, b: poly8x16x3_t, c: uint8x16_t) -> poly8x16_t {
     let mut b: poly8x16x3_t = b;
-    let a: poly8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(vqtbx3q(
             transmute(a),
@@ -20509,28 +21130,36 @@ pub fn vqtbx4_u8(a: uint8x8_t, b: uint8x16x4_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx4_u8(a: uint8x8_t, b: uint8x16x4_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x16x4_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.3 = simd_shuffle!(
-        b.3,
-        b.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.3 = unsafe {
+        simd_shuffle!(
+            b.3,
+            b.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbx4(
             transmute(a),
@@ -20571,28 +21200,38 @@ pub fn vqtbx4q_u8(a: uint8x16_t, b: uint8x16x4_t, c: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx4q_u8(a: uint8x16_t, b: uint8x16x4_t, c: uint8x16_t) -> uint8x16_t {
     let mut b: uint8x16x4_t = b;
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.3 = simd_shuffle!(
-        b.3,
-        b.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.3 = unsafe {
+        simd_shuffle!(
+            b.3,
+            b.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vqtbx4q(
             transmute(a),
@@ -20637,28 +21276,36 @@ pub fn vqtbx4_p8(a: poly8x8_t, b: poly8x16x4_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx4_p8(a: poly8x8_t, b: poly8x16x4_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x16x4_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.3 = simd_shuffle!(
-        b.3,
-        b.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.3 = unsafe {
+        simd_shuffle!(
+            b.3,
+            b.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbx4(
             transmute(a),
@@ -20699,28 +21346,38 @@ pub fn vqtbx4q_p8(a: poly8x16_t, b: poly8x16x4_t, c: uint8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vqtbx4q_p8(a: poly8x16_t, b: poly8x16x4_t, c: uint8x16_t) -> poly8x16_t {
     let mut b: poly8x16x4_t = b;
-    let a: poly8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(
-        b.0,
-        b.0,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.1 = simd_shuffle!(
-        b.1,
-        b.1,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.2 = simd_shuffle!(
-        b.2,
-        b.2,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    b.3 = simd_shuffle!(
-        b.3,
-        b.3,
-        [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-    );
-    let c: uint8x16_t = simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe {
+        simd_shuffle!(
+            b.0,
+            b.0,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.1 = unsafe {
+        simd_shuffle!(
+            b.1,
+            b.1,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.2 = unsafe {
+        simd_shuffle!(
+            b.2,
+            b.2,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    b.3 = unsafe {
+        simd_shuffle!(
+            b.3,
+            b.3,
+            [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        )
+    };
+    let c: uint8x16_t =
+        unsafe { simd_shuffle!(c, c, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(vqtbx4q(
             transmute(a),
@@ -20803,7 +21460,7 @@ pub fn vrbit_u8(a: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(rbit))]
 pub fn vrbit_u8(a: uint8x8_t) -> uint8x8_t {
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vrbit_s8(transmute(a)));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -20827,7 +21484,8 @@ pub fn vrbitq_u8(a: uint8x16_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(rbit))]
 pub fn vrbitq_u8(a: uint8x16_t) -> uint8x16_t {
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(vrbitq_s8(transmute(a)));
         simd_shuffle!(
@@ -20855,7 +21513,7 @@ pub fn vrbit_p8(a: poly8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(rbit))]
 pub fn vrbit_p8(a: poly8x8_t) -> poly8x8_t {
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vrbit_s8(transmute(a)));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -20879,7 +21537,8 @@ pub fn vrbitq_p8(a: poly8x16_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(rbit))]
 pub fn vrbitq_p8(a: poly8x16_t) -> poly8x16_t {
-    let a: poly8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(vrbitq_s8(transmute(a)));
         simd_shuffle!(
@@ -21115,7 +21774,7 @@ pub fn vreinterpret_f64_f16(a: float16x4_t) -> float64x1_t {
 #[unstable(feature = "stdarch_neon_f16", issue = "136306")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_f16(a: float16x4_t) -> float64x1_t {
-    let a: float16x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: float16x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21136,7 +21795,7 @@ pub fn vreinterpretq_f64_f16(a: float16x8_t) -> float64x2_t {
 #[unstable(feature = "stdarch_neon_f16", issue = "136306")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_f16(a: float16x8_t) -> float64x2_t {
-    let a: float16x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: float16x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21183,7 +21842,7 @@ pub fn vreinterpretq_f16_f64(a: float64x2_t) -> float16x8_t {
 #[unstable(feature = "stdarch_neon_f16", issue = "136306")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f16_f64(a: float64x2_t) -> float16x8_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float16x8_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -21230,7 +21889,7 @@ pub fn vreinterpret_f64_f32(a: float32x2_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_f32(a: float32x2_t) -> float64x1_t {
-    let a: float32x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float32x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21251,7 +21910,7 @@ pub fn vreinterpret_p64_f32(a: float32x2_t) -> poly64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_p64_f32(a: float32x2_t) -> poly64x1_t {
-    let a: float32x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float32x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21272,7 +21931,7 @@ pub fn vreinterpretq_f64_f32(a: float32x4_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_f32(a: float32x4_t) -> float64x2_t {
-    let a: float32x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: float32x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21296,7 +21955,7 @@ pub fn vreinterpretq_p64_f32(a: float32x4_t) -> poly64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p64_f32(a: float32x4_t) -> poly64x2_t {
-    let a: float32x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: float32x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21554,7 +22213,7 @@ pub fn vreinterpretq_p128_f64(a: float64x2_t) -> p128 {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p128_f64(a: float64x2_t) -> p128 {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21575,7 +22234,7 @@ pub fn vreinterpretq_f32_f64(a: float64x2_t) -> float32x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f32_f64(a: float64x2_t) -> float32x4_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float32x4_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [3, 2, 1, 0])
@@ -21599,7 +22258,7 @@ pub fn vreinterpretq_s8_f64(a: float64x2_t) -> int8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_s8_f64(a: float64x2_t) -> int8x16_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: int8x16_t = transmute(a);
         simd_shuffle!(
@@ -21627,7 +22286,7 @@ pub fn vreinterpretq_s16_f64(a: float64x2_t) -> int16x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_s16_f64(a: float64x2_t) -> int16x8_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: int16x8_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -21651,7 +22310,7 @@ pub fn vreinterpretq_s32_f64(a: float64x2_t) -> int32x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_s32_f64(a: float64x2_t) -> int32x4_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: int32x4_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [3, 2, 1, 0])
@@ -21675,7 +22334,7 @@ pub fn vreinterpretq_s64_f64(a: float64x2_t) -> int64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_s64_f64(a: float64x2_t) -> int64x2_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: int64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21699,7 +22358,7 @@ pub fn vreinterpretq_u8_f64(a: float64x2_t) -> uint8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_u8_f64(a: float64x2_t) -> uint8x16_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: uint8x16_t = transmute(a);
         simd_shuffle!(
@@ -21727,7 +22386,7 @@ pub fn vreinterpretq_u16_f64(a: float64x2_t) -> uint16x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_u16_f64(a: float64x2_t) -> uint16x8_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: uint16x8_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -21751,7 +22410,7 @@ pub fn vreinterpretq_u32_f64(a: float64x2_t) -> uint32x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_u32_f64(a: float64x2_t) -> uint32x4_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: uint32x4_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [3, 2, 1, 0])
@@ -21775,7 +22434,7 @@ pub fn vreinterpretq_u64_f64(a: float64x2_t) -> uint64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_u64_f64(a: float64x2_t) -> uint64x2_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: uint64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21799,7 +22458,7 @@ pub fn vreinterpretq_p8_f64(a: float64x2_t) -> poly8x16_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p8_f64(a: float64x2_t) -> poly8x16_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: poly8x16_t = transmute(a);
         simd_shuffle!(
@@ -21827,7 +22486,7 @@ pub fn vreinterpretq_p16_f64(a: float64x2_t) -> poly16x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p16_f64(a: float64x2_t) -> poly16x8_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: poly16x8_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -21851,7 +22510,7 @@ pub fn vreinterpretq_p64_f64(a: float64x2_t) -> poly64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p64_f64(a: float64x2_t) -> poly64x2_t {
-    let a: float64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: float64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: poly64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21875,7 +22534,7 @@ pub fn vreinterpret_f64_s8(a: int8x8_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_s8(a: int8x8_t) -> float64x1_t {
-    let a: int8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: int8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21896,7 +22555,8 @@ pub fn vreinterpretq_f64_s8(a: int8x16_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_s8(a: int8x16_t) -> float64x2_t {
-    let a: int8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: int8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21920,7 +22580,7 @@ pub fn vreinterpret_f64_s16(a: int16x4_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_s16(a: int16x4_t) -> float64x1_t {
-    let a: int16x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: int16x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21941,7 +22601,7 @@ pub fn vreinterpretq_f64_s16(a: int16x8_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_s16(a: int16x8_t) -> float64x2_t {
-    let a: int16x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: int16x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -21965,7 +22625,7 @@ pub fn vreinterpret_f64_s32(a: int32x2_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_s32(a: int32x2_t) -> float64x1_t {
-    let a: int32x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: int32x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -21986,7 +22646,7 @@ pub fn vreinterpretq_f64_s32(a: int32x4_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_s32(a: int32x4_t) -> float64x2_t {
-    let a: int32x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: int32x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22028,7 +22688,7 @@ pub fn vreinterpretq_f64_s64(a: int64x2_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_s64(a: int64x2_t) -> float64x2_t {
-    let a: int64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: int64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22052,7 +22712,7 @@ pub fn vreinterpretq_p64_s64(a: int64x2_t) -> poly64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p64_s64(a: int64x2_t) -> poly64x2_t {
-    let a: int64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: int64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: poly64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22076,7 +22736,7 @@ pub fn vreinterpret_f64_u8(a: uint8x8_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_u8(a: uint8x8_t) -> float64x1_t {
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -22097,7 +22757,8 @@ pub fn vreinterpretq_f64_u8(a: uint8x16_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_u8(a: uint8x16_t) -> float64x2_t {
-    let a: uint8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22121,7 +22782,7 @@ pub fn vreinterpret_f64_u16(a: uint16x4_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_u16(a: uint16x4_t) -> float64x1_t {
-    let a: uint16x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: uint16x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -22142,7 +22803,7 @@ pub fn vreinterpretq_f64_u16(a: uint16x8_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_u16(a: uint16x8_t) -> float64x2_t {
-    let a: uint16x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint16x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22166,7 +22827,7 @@ pub fn vreinterpret_f64_u32(a: uint32x2_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_u32(a: uint32x2_t) -> float64x1_t {
-    let a: uint32x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: uint32x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -22187,7 +22848,7 @@ pub fn vreinterpretq_f64_u32(a: uint32x4_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_u32(a: uint32x4_t) -> float64x2_t {
-    let a: uint32x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: uint32x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22229,7 +22890,7 @@ pub fn vreinterpretq_f64_u64(a: uint64x2_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_u64(a: uint64x2_t) -> float64x2_t {
-    let a: uint64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: uint64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22253,7 +22914,7 @@ pub fn vreinterpretq_p64_u64(a: uint64x2_t) -> poly64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_p64_u64(a: uint64x2_t) -> poly64x2_t {
-    let a: uint64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: uint64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: poly64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22277,7 +22938,7 @@ pub fn vreinterpret_f64_p8(a: poly8x8_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_p8(a: poly8x8_t) -> float64x1_t {
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -22298,7 +22959,8 @@ pub fn vreinterpretq_f64_p8(a: poly8x16_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_p8(a: poly8x16_t) -> float64x2_t {
-    let a: poly8x16_t = simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x16_t =
+        unsafe { simd_shuffle!(a, a, [15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22322,7 +22984,7 @@ pub fn vreinterpret_f64_p16(a: poly16x4_t) -> float64x1_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpret_f64_p16(a: poly16x4_t) -> float64x1_t {
-    let a: poly16x4_t = simd_shuffle!(a, a, [3, 2, 1, 0]);
+    let a: poly16x4_t = unsafe { simd_shuffle!(a, a, [3, 2, 1, 0]) };
     unsafe { transmute(a) }
 }
 #[doc = "Vector reinterpret cast operation"]
@@ -22343,7 +23005,7 @@ pub fn vreinterpretq_f64_p16(a: poly16x8_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_p16(a: poly16x8_t) -> float64x2_t {
-    let a: poly16x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly16x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22417,7 +23079,7 @@ pub fn vreinterpretq_f32_p64(a: poly64x2_t) -> float32x4_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f32_p64(a: poly64x2_t) -> float32x4_t {
-    let a: poly64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: poly64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float32x4_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [3, 2, 1, 0])
@@ -22441,7 +23103,7 @@ pub fn vreinterpretq_f64_p64(a: poly64x2_t) -> float64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_f64_p64(a: poly64x2_t) -> float64x2_t {
-    let a: poly64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: poly64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: float64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22465,7 +23127,7 @@ pub fn vreinterpretq_s64_p64(a: poly64x2_t) -> int64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_s64_p64(a: poly64x2_t) -> int64x2_t {
-    let a: poly64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: poly64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: int64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -22489,7 +23151,7 @@ pub fn vreinterpretq_u64_p64(a: poly64x2_t) -> uint64x2_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 #[cfg_attr(test, assert_instr(nop))]
 pub fn vreinterpretq_u64_p64(a: poly64x2_t) -> uint64x2_t {
-    let a: poly64x2_t = simd_shuffle!(a, a, [1, 0]);
+    let a: poly64x2_t = unsafe { simd_shuffle!(a, a, [1, 0]) };
     unsafe {
         let ret_val: uint64x2_t = transmute(a);
         simd_shuffle!(ret_val, ret_val, [1, 0])
@@ -26746,9 +27408,9 @@ pub fn vtbl2_u8(a: uint8x8x2_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl2_u8(a: uint8x8x2_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x8x2_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbl1(transmute(vcombine_u8(a.0, a.1)), b));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -26773,9 +27435,9 @@ pub fn vtbl2_p8(a: poly8x8x2_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl2_p8(a: poly8x8x2_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x8x2_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbl1(transmute(vcombine_p8(a.0, a.1)), b));
         simd_shuffle!(ret_val, ret_val, [7, 6, 5, 4, 3, 2, 1, 0])
@@ -26817,10 +27479,10 @@ pub fn vtbl3_u8(a: uint8x8x3_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl3_u8(a: uint8x8x3_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x8x3_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.2 = simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.2 = unsafe { simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = uint8x16x2_t(
         vcombine_u8(a.0, a.1),
         vcombine_u8(a.2, unsafe { crate::mem::zeroed() }),
@@ -26853,10 +27515,10 @@ pub fn vtbl3_p8(a: poly8x8x3_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl3_p8(a: poly8x8x3_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x8x3_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.2 = simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.2 = unsafe { simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = poly8x16x2_t(
         vcombine_p8(a.0, a.1),
         vcombine_p8(a.2, unsafe { crate::mem::zeroed() }),
@@ -26896,11 +27558,11 @@ pub fn vtbl4_u8(a: uint8x8x4_t, b: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl4_u8(a: uint8x8x4_t, b: uint8x8_t) -> uint8x8_t {
     let mut a: uint8x8x4_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.2 = simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.3 = simd_shuffle!(a.3, a.3, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.2 = unsafe { simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.3 = unsafe { simd_shuffle!(a.3, a.3, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = uint8x16x2_t(vcombine_u8(a.0, a.1), vcombine_u8(a.2, a.3));
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbl2(transmute(x.0), transmute(x.1), b));
@@ -26927,11 +27589,11 @@ pub fn vtbl4_p8(a: poly8x8x4_t, b: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbl4_p8(a: poly8x8x4_t, b: uint8x8_t) -> poly8x8_t {
     let mut a: poly8x8x4_t = a;
-    a.0 = simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.1 = simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.2 = simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    a.3 = simd_shuffle!(a.3, a.3, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let b: uint8x8_t = simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]);
+    a.0 = unsafe { simd_shuffle!(a.0, a.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.1 = unsafe { simd_shuffle!(a.1, a.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.2 = unsafe { simd_shuffle!(a.2, a.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    a.3 = unsafe { simd_shuffle!(a.3, a.3, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let b: uint8x8_t = unsafe { simd_shuffle!(b, b, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = poly8x16x2_t(vcombine_p8(a.0, a.1), vcombine_p8(a.2, a.3));
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbl2(transmute(x.0), transmute(x.1), b));
@@ -27023,10 +27685,10 @@ pub fn vtbx2_u8(a: uint8x8_t, b: uint8x8x2_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx2_u8(a: uint8x8_t, b: uint8x8x2_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x8x2_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t =
             transmute(vqtbx1(transmute(a), transmute(vcombine_u8(b.0, b.1)), c));
@@ -27052,10 +27714,10 @@ pub fn vtbx2_p8(a: poly8x8_t, b: poly8x8x2_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx2_p8(a: poly8x8_t, b: poly8x8x2_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x8x2_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t =
             transmute(vqtbx1(transmute(a), transmute(vcombine_p8(b.0, b.1)), c));
@@ -27115,11 +27777,11 @@ pub fn vtbx3_u8(a: uint8x8_t, b: uint8x8x3_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx3_u8(a: uint8x8_t, b: uint8x8x3_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x8x3_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.2 = simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.2 = unsafe { simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = uint8x16x2_t(
         vcombine_u8(b.0, b.1),
         vcombine_u8(b.2, unsafe { crate::mem::zeroed() }),
@@ -27162,11 +27824,11 @@ pub fn vtbx3_p8(a: poly8x8_t, b: poly8x8x3_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx3_p8(a: poly8x8_t, b: poly8x8x3_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x8x3_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.2 = simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.2 = unsafe { simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     let x = poly8x16x2_t(
         vcombine_p8(b.0, b.1),
         vcombine_p8(b.2, unsafe { crate::mem::zeroed() }),
@@ -27222,12 +27884,12 @@ pub fn vtbx4_u8(a: uint8x8_t, b: uint8x8x4_t, c: uint8x8_t) -> uint8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx4_u8(a: uint8x8_t, b: uint8x8x4_t, c: uint8x8_t) -> uint8x8_t {
     let mut b: uint8x8x4_t = b;
-    let a: uint8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.2 = simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.3 = simd_shuffle!(b.3, b.3, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: uint8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.2 = unsafe { simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.3 = unsafe { simd_shuffle!(b.3, b.3, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: uint8x8_t = transmute(vqtbx2(
             transmute(a),
@@ -27264,12 +27926,12 @@ pub fn vtbx4_p8(a: poly8x8_t, b: poly8x8x4_t, c: uint8x8_t) -> poly8x8_t {
 #[stable(feature = "neon_intrinsics", since = "1.59.0")]
 pub fn vtbx4_p8(a: poly8x8_t, b: poly8x8x4_t, c: uint8x8_t) -> poly8x8_t {
     let mut b: poly8x8x4_t = b;
-    let a: poly8x8_t = simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.0 = simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.1 = simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.2 = simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]);
-    b.3 = simd_shuffle!(b.3, b.3, [7, 6, 5, 4, 3, 2, 1, 0]);
-    let c: uint8x8_t = simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]);
+    let a: poly8x8_t = unsafe { simd_shuffle!(a, a, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.0 = unsafe { simd_shuffle!(b.0, b.0, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.1 = unsafe { simd_shuffle!(b.1, b.1, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.2 = unsafe { simd_shuffle!(b.2, b.2, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    b.3 = unsafe { simd_shuffle!(b.3, b.3, [7, 6, 5, 4, 3, 2, 1, 0]) };
+    let c: uint8x8_t = unsafe { simd_shuffle!(c, c, [7, 6, 5, 4, 3, 2, 1, 0]) };
     unsafe {
         let ret_val: poly8x8_t = transmute(vqtbx2(
             transmute(a),
