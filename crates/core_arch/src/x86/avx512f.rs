@@ -15046,60 +15046,90 @@ pub fn _mm512_maskz_cvt_roundepu32_ps<const ROUNDING: i32>(k: __mmask16, a: __m5
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst.\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_cvt_roundps_ph&expand=1354)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(1)]
-pub fn _mm512_cvt_roundps_ph<const SAE: i32>(a: __m512) -> __m256i {
+pub fn _mm512_cvt_roundps_ph<const ROUNDING: i32>(a: __m512) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
-        let r = vcvtps2ph(a, SAE, i16x16::ZERO, 0b11111111_11111111);
+        let r = vcvtps2ph(a, ROUNDING, i16x16::ZERO, 0b11111111_11111111);
         transmute(r)
     }
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_mask_cvt_roundps_ph&expand=1355)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(3)]
-pub fn _mm512_mask_cvt_roundps_ph<const SAE: i32>(
+pub fn _mm512_mask_cvt_roundps_ph<const ROUNDING: i32>(
     src: __m256i,
     k: __mmask16,
     a: __m512,
 ) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
         let src = src.as_i16x16();
-        let r = vcvtps2ph(a, SAE, src, k);
+        let r = vcvtps2ph(a, ROUNDING, src, k);
         transmute(r)
     }
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst using zeromask k (elements are zeroed out when the corresponding mask bit is not set).\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_maskz_cvt_roundps_ph&expand=1356)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(2)]
-pub fn _mm512_maskz_cvt_roundps_ph<const SAE: i32>(k: __mmask16, a: __m512) -> __m256i {
+pub fn _mm512_maskz_cvt_roundps_ph<const ROUNDING: i32>(k: __mmask16, a: __m512) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
-        let r = vcvtps2ph(a, SAE, i16x16::ZERO, k);
+        let r = vcvtps2ph(a, ROUNDING, i16x16::ZERO, k);
         transmute(r)
     }
 }
@@ -15203,56 +15233,86 @@ pub fn _mm_maskz_cvt_roundps_ph<const IMM8: i32>(k: __mmask8, a: __m128) -> __m1
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst.\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_cvtps_ph&expand=1778)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(1)]
-pub fn _mm512_cvtps_ph<const SAE: i32>(a: __m512) -> __m256i {
+pub fn _mm512_cvtps_ph<const ROUNDING: i32>(a: __m512) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
-        let r = vcvtps2ph(a, SAE, i16x16::ZERO, 0b11111111_11111111);
+        let r = vcvtps2ph(a, ROUNDING, i16x16::ZERO, 0b11111111_11111111);
         transmute(r)
     }
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_mask_cvtps_ph&expand=1779)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(3)]
-pub fn _mm512_mask_cvtps_ph<const SAE: i32>(src: __m256i, k: __mmask16, a: __m512) -> __m256i {
+pub fn _mm512_mask_cvtps_ph<const ROUNDING: i32>(src: __m256i, k: __mmask16, a: __m512) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
         let src = src.as_i16x16();
-        let r = vcvtps2ph(a, SAE, src, k);
+        let r = vcvtps2ph(a, ROUNDING, src, k);
         transmute(r)
     }
 }
 
 /// Convert packed single-precision (32-bit) floating-point elements in a to packed half-precision (16-bit) floating-point elements, and store the results in dst using zeromask k (elements are zeroed out when the corresponding mask bit is not set).\
-/// Exceptions can be suppressed by passing _MM_FROUND_NO_EXC in the sae parameter.
+/// Rounding is done according to the rounding\[3:0\] parameter, which can be one of:
+///  * [`_MM_FROUND_TO_NEAREST_INT`] // round to nearest
+///  * [`_MM_FROUND_TO_NEG_INF`]     // round down
+///  * [`_MM_FROUND_TO_POS_INF`]    // round up
+///  * [`_MM_FROUND_TO_ZERO`]        // truncate
+///  * [`_MM_FROUND_CUR_DIRECTION`]    // use MXCSR.RC; see [`_MM_SET_ROUNDING_MODE`]
+///  * [`_MM_FROUND_TO_NEAREST_INT`] | [`_MM_FROUND_NO_EXC`] // round to nearest, and suppress exceptions
+///  * [`_MM_FROUND_TO_NEG_INF`] | [`_MM_FROUND_NO_EXC`]     // round down, and suppress exceptions
+///  * [`_MM_FROUND_TO_POS_INF`] | [`_MM_FROUND_NO_EXC`]     // round up, and suppress exceptions
+///  * [`_MM_FROUND_TO_ZERO`] | [`_MM_FROUND_NO_EXC`]        // truncate, and suppress exceptions
+///  * [`_MM_FROUND_CUR_DIRECTION`] | [`_MM_FROUND_NO_EXC`]  // use MXCSR.RC and suppress exceptions; see [`_MM_SET_ROUNDING_MODE`]
 ///
 /// [Intel's documentation](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm512_maskz_cvtps_ph&expand=1780)
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vcvtps2ph, SAE = 8))]
+#[cfg_attr(test, assert_instr(vcvtps2ph, ROUNDING = 8))]
 #[rustc_legacy_const_generics(2)]
-pub fn _mm512_maskz_cvtps_ph<const SAE: i32>(k: __mmask16, a: __m512) -> __m256i {
+pub fn _mm512_maskz_cvtps_ph<const ROUNDING: i32>(k: __mmask16, a: __m512) -> __m256i {
     unsafe {
-        static_assert_sae!(SAE);
+        static_assert_extended_rounding!(ROUNDING);
         let a = a.as_f32x16();
-        let r = vcvtps2ph(a, SAE, i16x16::ZERO, k);
+        let r = vcvtps2ph(a, ROUNDING, i16x16::ZERO, k);
         transmute(r)
     }
 }
@@ -34468,7 +34528,10 @@ pub unsafe fn _mm512_storeu_ps(mem_addr: *mut f32, a: __m512) {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm512_load_si512(mem_addr: *const __m512i) -> __m512i {
     ptr::read(mem_addr)
 }
@@ -34479,7 +34542,10 @@ pub unsafe fn _mm512_load_si512(mem_addr: *const __m512i) -> __m512i {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm512_store_si512(mem_addr: *mut __m512i, a: __m512i) {
     ptr::write(mem_addr, a);
 }
@@ -34490,7 +34556,10 @@ pub unsafe fn _mm512_store_si512(mem_addr: *mut __m512i, a: __m512i) {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm512_load_epi32(mem_addr: *const i32) -> __m512i {
     ptr::read(mem_addr as *const __m512i)
 }
@@ -34501,7 +34570,10 @@ pub unsafe fn _mm512_load_epi32(mem_addr: *const i32) -> __m512i {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm256_load_epi32(mem_addr: *const i32) -> __m256i {
     ptr::read(mem_addr as *const __m256i)
 }
@@ -34512,7 +34584,10 @@ pub unsafe fn _mm256_load_epi32(mem_addr: *const i32) -> __m256i {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm_load_epi32(mem_addr: *const i32) -> __m128i {
     ptr::read(mem_addr as *const __m128i)
 }
@@ -34523,7 +34598,10 @@ pub unsafe fn _mm_load_epi32(mem_addr: *const i32) -> __m128i {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm512_store_epi32(mem_addr: *mut i32, a: __m512i) {
     ptr::write(mem_addr as *mut __m512i, a);
 }
@@ -34534,7 +34612,10 @@ pub unsafe fn _mm512_store_epi32(mem_addr: *mut i32, a: __m512i) {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm256_store_epi32(mem_addr: *mut i32, a: __m256i) {
     ptr::write(mem_addr as *mut __m256i, a);
 }
@@ -34545,7 +34626,10 @@ pub unsafe fn _mm256_store_epi32(mem_addr: *mut i32, a: __m256i) {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa32
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa32
 pub unsafe fn _mm_store_epi32(mem_addr: *mut i32, a: __m128i) {
     ptr::write(mem_addr as *mut __m128i, a);
 }
@@ -34556,7 +34640,10 @@ pub unsafe fn _mm_store_epi32(mem_addr: *mut i32, a: __m128i) {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm512_load_epi64(mem_addr: *const i64) -> __m512i {
     ptr::read(mem_addr as *const __m512i)
 }
@@ -34567,7 +34654,10 @@ pub unsafe fn _mm512_load_epi64(mem_addr: *const i64) -> __m512i {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm256_load_epi64(mem_addr: *const i64) -> __m256i {
     ptr::read(mem_addr as *const __m256i)
 }
@@ -34578,7 +34668,10 @@ pub unsafe fn _mm256_load_epi64(mem_addr: *const i64) -> __m256i {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm_load_epi64(mem_addr: *const i64) -> __m128i {
     ptr::read(mem_addr as *const __m128i)
 }
@@ -34589,7 +34682,10 @@ pub unsafe fn _mm_load_epi64(mem_addr: *const i64) -> __m128i {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm512_store_epi64(mem_addr: *mut i64, a: __m512i) {
     ptr::write(mem_addr as *mut __m512i, a);
 }
@@ -34600,7 +34696,10 @@ pub unsafe fn _mm512_store_epi64(mem_addr: *mut i64, a: __m512i) {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm256_store_epi64(mem_addr: *mut i64, a: __m256i) {
     ptr::write(mem_addr as *mut __m256i, a);
 }
@@ -34611,7 +34710,10 @@ pub unsafe fn _mm256_store_epi64(mem_addr: *mut i64, a: __m256i) {
 #[inline]
 #[target_feature(enable = "avx512f,avx512vl")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovdqa64
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovdqa64
 pub unsafe fn _mm_store_epi64(mem_addr: *mut i64, a: __m128i) {
     ptr::write(mem_addr as *mut __m128i, a);
 }
@@ -34622,7 +34724,10 @@ pub unsafe fn _mm_store_epi64(mem_addr: *mut i64, a: __m128i) {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))]
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)]
 pub unsafe fn _mm512_load_ps(mem_addr: *const f32) -> __m512 {
     ptr::read(mem_addr as *const __m512)
 }
@@ -34633,7 +34738,10 @@ pub unsafe fn _mm512_load_ps(mem_addr: *const f32) -> __m512 {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))]
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)]
 pub unsafe fn _mm512_store_ps(mem_addr: *mut f32, a: __m512) {
     ptr::write(mem_addr as *mut __m512, a);
 }
@@ -34644,7 +34752,10 @@ pub unsafe fn _mm512_store_ps(mem_addr: *mut f32, a: __m512) {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovapd
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovapd
 pub unsafe fn _mm512_load_pd(mem_addr: *const f64) -> __m512d {
     ptr::read(mem_addr as *const __m512d)
 }
@@ -34655,7 +34766,10 @@ pub unsafe fn _mm512_load_pd(mem_addr: *const f64) -> __m512d {
 #[inline]
 #[target_feature(enable = "avx512f")]
 #[unstable(feature = "stdarch_x86_avx512", issue = "111137")]
-#[cfg_attr(test, assert_instr(vmovaps))] //should be vmovapd
+#[cfg_attr(
+    all(test, not(all(target_arch = "x86", target_env = "msvc"))),
+    assert_instr(vmovaps)
+)] //should be vmovapd
 pub unsafe fn _mm512_store_pd(mem_addr: *mut f64, a: __m512d) {
     ptr::write(mem_addr as *mut __m512d, a);
 }
@@ -42433,11 +42547,11 @@ unsafe extern "C" {
     fn vcvtudq2ps(a: u32x16, rounding: i32) -> f32x16;
 
     #[link_name = "llvm.x86.avx512.mask.vcvtps2ph.512"]
-    fn vcvtps2ph(a: f32x16, sae: i32, src: i16x16, mask: u16) -> i16x16;
+    fn vcvtps2ph(a: f32x16, rounding: i32, src: i16x16, mask: u16) -> i16x16;
     #[link_name = "llvm.x86.avx512.mask.vcvtps2ph.256"]
-    fn vcvtps2ph256(a: f32x8, sae: i32, src: i16x8, mask: u8) -> i16x8;
+    fn vcvtps2ph256(a: f32x8, imm8: i32, src: i16x8, mask: u8) -> i16x8;
     #[link_name = "llvm.x86.avx512.mask.vcvtps2ph.128"]
-    fn vcvtps2ph128(a: f32x4, sae: i32, src: i16x8, mask: u8) -> i16x8;
+    fn vcvtps2ph128(a: f32x4, imm8: i32, src: i16x8, mask: u8) -> i16x8;
 
     #[link_name = "llvm.x86.avx512.mask.vcvtph2ps.512"]
     fn vcvtph2ps(a: i16x16, src: f32x16, mask: u16, sae: i32) -> f32x16;

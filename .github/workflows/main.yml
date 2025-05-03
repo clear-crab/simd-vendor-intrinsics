@@ -56,6 +56,8 @@ jobs:
           os: ubuntu-latest
         - tuple: aarch64-unknown-linux-gnu
           os: ubuntu-latest
+        - tuple: aarch64_be-unknown-linux-gnu
+          os: ubuntu-latest
         - tuple: riscv64gc-unknown-linux-gnu
           os: ubuntu-latest
         - tuple: powerpc-unknown-linux-gnu
@@ -126,6 +128,11 @@ jobs:
             os: ubuntu-latest
           test_everything: true
         - target:
+            tuple: aarch64_be-unknown-linux-gnu
+            os: ubuntu-latest
+          test_everything: true
+          build_std: true
+        - target:
             tuple: armv7-unknown-linux-gnueabihf
             os: ubuntu-latest
           test_everything: true
@@ -192,13 +199,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        submodules: recursive
     - name: Install Rust
       run: |
         rustup update nightly --no-self-update
         rustup default nightly
     - run: rustup target add ${{ matrix.target.tuple }}
+      if: matrix.build_std == ''
+    - run: |
+        rustup component add rust-src
+        echo "CARGO_UNSTABLE_BUILD_STD=std" >> $GITHUB_ENV
+      if: matrix.build_std != ''
     - run: cargo generate-lockfile
 
     # Configure some env vars based on matrix configuration

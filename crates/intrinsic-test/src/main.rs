@@ -594,29 +594,17 @@ fn compare_outputs(
                 ))
                 .output();
 
-            let rust = if target != "aarch64_be-unknown-linux-gnu" {
-                Command::new("sh")
-                    .current_dir("rust_programs")
-                    .arg("-c")
-                    .arg(format!(
+            let rust = Command::new("sh")
+                .current_dir("rust_programs")
+                .arg("-c")
+                .arg(format!(
                         "cargo {toolchain} run --target {target} --bin {intrinsic} --release",
                         intrinsic = intrinsic.name,
                         toolchain = toolchain,
                         target = target
-                    ))
-                    .env("RUSTFLAGS", "-Cdebuginfo=0")
-                    .output()
-            } else {
-                Command::new("sh")
-                    .arg("-c")
-                    .arg(format!(
-                        "{runner} ./rust_programs/target/{target}/release/{intrinsic}",
-                        runner = runner,
-                        target = target,
-                        intrinsic = intrinsic.name,
-                    ))
-                    .output()
-            };
+                ))
+                .env("RUSTFLAGS", "-Cdebuginfo=0")
+                .output();
 
             let (c, rust) = match (c, rust) {
                 (Ok(c), Ok(rust)) => (c, rust),
@@ -624,14 +612,21 @@ fn compare_outputs(
             };
 
             if !c.status.success() {
-                error!("Failed to run C program for intrinsic {}", intrinsic.name);
+                error!(
+                    "Failed to run C program for intrinsic {intrinsic}\nstdout: {stdout}\nstderr: {stderr}",
+                    intrinsic = intrinsic.name,
+                    stdout = std::str::from_utf8(&c.stdout).unwrap_or(""),
+                    stderr = std::str::from_utf8(&c.stderr).unwrap_or(""),
+                );
                 return Some(FailureReason::RunC(intrinsic.name.clone()));
             }
 
             if !rust.status.success() {
                 error!(
-                    "Failed to run rust program for intrinsic {}",
-                    intrinsic.name
+                    "Failed to run Rust program for intrinsic {intrinsic}\nstdout: {stdout}\nstderr: {stderr}",
+                    intrinsic = intrinsic.name,
+                    stdout = std::str::from_utf8(&rust.stdout).unwrap_or(""),
+                    stderr = std::str::from_utf8(&rust.stderr).unwrap_or(""),
                 );
                 return Some(FailureReason::RunRust(intrinsic.name.clone()));
             }
