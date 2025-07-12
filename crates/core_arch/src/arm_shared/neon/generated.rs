@@ -14322,8 +14322,7 @@ pub unsafe fn vld1q_dup_f16(ptr: *const f16) -> float16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_f32(ptr: *const f32) -> float32x2_t {
-    let x = vld1_lane_f32::<0>(ptr, transmute(f32x2::splat(0.0)));
-    simd_shuffle!(x, x, [0, 0])
+    transmute(f32x2::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_p16)"]
@@ -14346,8 +14345,7 @@ pub unsafe fn vld1_dup_f32(ptr: *const f32) -> float32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_p16(ptr: *const p16) -> poly16x4_t {
-    let x = vld1_lane_p16::<0>(ptr, transmute(u16x4::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(u16x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_p8)"]
@@ -14370,8 +14368,7 @@ pub unsafe fn vld1_dup_p16(ptr: *const p16) -> poly16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_p8(ptr: *const p8) -> poly8x8_t {
-    let x = vld1_lane_p8::<0>(ptr, transmute(u8x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u8x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_s16)"]
@@ -14394,8 +14391,7 @@ pub unsafe fn vld1_dup_p8(ptr: *const p8) -> poly8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_s16(ptr: *const i16) -> int16x4_t {
-    let x = vld1_lane_s16::<0>(ptr, transmute(i16x4::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(i16x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_s32)"]
@@ -14418,8 +14414,7 @@ pub unsafe fn vld1_dup_s16(ptr: *const i16) -> int16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_s32(ptr: *const i32) -> int32x2_t {
-    let x = vld1_lane_s32::<0>(ptr, transmute(i32x2::splat(0)));
-    simd_shuffle!(x, x, [0, 0])
+    transmute(i32x2::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_s8)"]
@@ -14442,8 +14437,7 @@ pub unsafe fn vld1_dup_s32(ptr: *const i32) -> int32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_s8(ptr: *const i8) -> int8x8_t {
-    let x = vld1_lane_s8::<0>(ptr, transmute(i8x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(i8x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_u16)"]
@@ -14466,8 +14460,7 @@ pub unsafe fn vld1_dup_s8(ptr: *const i8) -> int8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_u16(ptr: *const u16) -> uint16x4_t {
-    let x = vld1_lane_u16::<0>(ptr, transmute(u16x4::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(u16x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_u32)"]
@@ -14490,8 +14483,7 @@ pub unsafe fn vld1_dup_u16(ptr: *const u16) -> uint16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_u32(ptr: *const u32) -> uint32x2_t {
-    let x = vld1_lane_u32::<0>(ptr, transmute(u32x2::splat(0)));
-    simd_shuffle!(x, x, [0, 0])
+    transmute(u32x2::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_u8)"]
@@ -14514,8 +14506,7 @@ pub unsafe fn vld1_dup_u32(ptr: *const u32) -> uint32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1_dup_u8(ptr: *const u8) -> uint8x8_t {
-    let x = vld1_lane_u8::<0>(ptr, transmute(u8x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u8x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_f32)"]
@@ -14538,8 +14529,7 @@ pub unsafe fn vld1_dup_u8(ptr: *const u8) -> uint8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_f32(ptr: *const f32) -> float32x4_t {
-    let x = vld1q_lane_f32::<0>(ptr, transmute(f32x4::splat(0.0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(f32x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_p16)"]
@@ -14562,8 +14552,7 @@ pub unsafe fn vld1q_dup_f32(ptr: *const f32) -> float32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_p16(ptr: *const p16) -> poly16x8_t {
-    let x = vld1q_lane_p16::<0>(ptr, transmute(u16x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u16x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_p8)"]
@@ -14586,8 +14575,7 @@ pub unsafe fn vld1q_dup_p16(ptr: *const p16) -> poly16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_p8(ptr: *const p8) -> poly8x16_t {
-    let x = vld1q_lane_p8::<0>(ptr, transmute(u8x16::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u8x16::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_s16)"]
@@ -14610,8 +14598,7 @@ pub unsafe fn vld1q_dup_p8(ptr: *const p8) -> poly8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_s16(ptr: *const i16) -> int16x8_t {
-    let x = vld1q_lane_s16::<0>(ptr, transmute(i16x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(i16x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_s32)"]
@@ -14634,8 +14621,7 @@ pub unsafe fn vld1q_dup_s16(ptr: *const i16) -> int16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_s32(ptr: *const i32) -> int32x4_t {
-    let x = vld1q_lane_s32::<0>(ptr, transmute(i32x4::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(i32x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_s64)"]
@@ -14658,8 +14644,7 @@ pub unsafe fn vld1q_dup_s32(ptr: *const i32) -> int32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_s64(ptr: *const i64) -> int64x2_t {
-    let x = vld1q_lane_s64::<0>(ptr, transmute(i64x2::splat(0)));
-    simd_shuffle!(x, x, [0, 0])
+    transmute(i64x2::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_s8)"]
@@ -14682,8 +14667,7 @@ pub unsafe fn vld1q_dup_s64(ptr: *const i64) -> int64x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_s8(ptr: *const i8) -> int8x16_t {
-    let x = vld1q_lane_s8::<0>(ptr, transmute(i8x16::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(i8x16::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_u16)"]
@@ -14706,8 +14690,7 @@ pub unsafe fn vld1q_dup_s8(ptr: *const i8) -> int8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_u16(ptr: *const u16) -> uint16x8_t {
-    let x = vld1q_lane_u16::<0>(ptr, transmute(u16x8::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u16x8::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_u32)"]
@@ -14730,8 +14713,7 @@ pub unsafe fn vld1q_dup_u16(ptr: *const u16) -> uint16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_u32(ptr: *const u32) -> uint32x4_t {
-    let x = vld1q_lane_u32::<0>(ptr, transmute(u32x4::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0])
+    transmute(u32x4::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_u64)"]
@@ -14754,8 +14736,7 @@ pub unsafe fn vld1q_dup_u32(ptr: *const u32) -> uint32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_u64(ptr: *const u64) -> uint64x2_t {
-    let x = vld1q_lane_u64::<0>(ptr, transmute(u64x2::splat(0)));
-    simd_shuffle!(x, x, [0, 0])
+    transmute(u64x2::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1q_dup_u8)"]
@@ -14778,8 +14759,7 @@ pub unsafe fn vld1q_dup_u64(ptr: *const u64) -> uint64x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub unsafe fn vld1q_dup_u8(ptr: *const u8) -> uint8x16_t {
-    let x = vld1q_lane_u8::<0>(ptr, transmute(u8x16::splat(0)));
-    simd_shuffle!(x, x, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    transmute(u8x16::splat(*ptr))
 }
 #[doc = "Load one single-element structure and Replicate to all lanes (of one register)."]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vld1_dup_p64)"]
@@ -27681,15 +27661,10 @@ pub fn vmaxq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v8i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v8i8"
-        )]
-        fn _vmax_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t;
+    unsafe {
+        let mask: int8x8_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_s8(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_s8)"]
@@ -27710,15 +27685,10 @@ pub fn vmax_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v16i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v16i8"
-        )]
-        fn _vmaxq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t;
+    unsafe {
+        let mask: int8x16_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_s8(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_s16)"]
@@ -27739,15 +27709,10 @@ pub fn vmaxq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v4i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v4i16"
-        )]
-        fn _vmax_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t;
+    unsafe {
+        let mask: int16x4_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_s16(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_s16)"]
@@ -27768,15 +27733,10 @@ pub fn vmax_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v8i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v8i16"
-        )]
-        fn _vmaxq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t;
+    unsafe {
+        let mask: int16x8_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_s16(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_s32)"]
@@ -27797,15 +27757,10 @@ pub fn vmaxq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v2i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v2i32"
-        )]
-        fn _vmax_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t;
+    unsafe {
+        let mask: int32x2_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_s32(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_s32)"]
@@ -27826,15 +27781,10 @@ pub fn vmax_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxs.v4i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smax.v4i32"
-        )]
-        fn _vmaxq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t;
+    unsafe {
+        let mask: int32x4_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_s32(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_u8)"]
@@ -27855,15 +27805,10 @@ pub fn vmaxq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v8i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v8i8"
-        )]
-        fn _vmax_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t;
+    unsafe {
+        let mask: uint8x8_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_u8(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_u8)"]
@@ -27884,15 +27829,10 @@ pub fn vmax_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v16i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v16i8"
-        )]
-        fn _vmaxq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t;
+    unsafe {
+        let mask: uint8x16_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_u8(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_u16)"]
@@ -27913,15 +27853,10 @@ pub fn vmaxq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v4i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v4i16"
-        )]
-        fn _vmax_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t;
+    unsafe {
+        let mask: uint16x4_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_u16(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_u16)"]
@@ -27942,15 +27877,10 @@ pub fn vmax_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v8i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v8i16"
-        )]
-        fn _vmaxq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t;
+    unsafe {
+        let mask: uint16x8_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_u16(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmax_u32)"]
@@ -27971,15 +27901,10 @@ pub fn vmaxq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmax_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v2i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v2i32"
-        )]
-        fn _vmax_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t;
+    unsafe {
+        let mask: uint32x2_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmax_u32(a, b) }
 }
 #[doc = "Maximum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxq_u32)"]
@@ -28000,15 +27925,10 @@ pub fn vmax_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmaxq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmaxu.v4i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umax.v4i32"
-        )]
-        fn _vmaxq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t;
+    unsafe {
+        let mask: uint32x4_t = simd_ge(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmaxq_u32(a, b) }
 }
 #[doc = "Floating-point Maximum Number (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmaxnm_f16)"]
@@ -28233,15 +28153,10 @@ pub fn vminq_f32(a: float32x4_t, b: float32x4_t) -> float32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v8i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v8i8"
-        )]
-        fn _vmin_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t;
+    unsafe {
+        let mask: int8x8_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_s8(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_s8)"]
@@ -28262,15 +28177,10 @@ pub fn vmin_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v16i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v16i8"
-        )]
-        fn _vminq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t;
+    unsafe {
+        let mask: int8x16_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_s8(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmin_s16)"]
@@ -28291,15 +28201,10 @@ pub fn vminq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v4i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v4i16"
-        )]
-        fn _vmin_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t;
+    unsafe {
+        let mask: int16x4_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_s16(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_s16)"]
@@ -28320,15 +28225,10 @@ pub fn vmin_s16(a: int16x4_t, b: int16x4_t) -> int16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v8i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v8i16"
-        )]
-        fn _vminq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t;
+    unsafe {
+        let mask: int16x8_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_s16(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmin_s32)"]
@@ -28349,15 +28249,10 @@ pub fn vminq_s16(a: int16x8_t, b: int16x8_t) -> int16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v2i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v2i32"
-        )]
-        fn _vmin_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t;
+    unsafe {
+        let mask: int32x2_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_s32(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_s32)"]
@@ -28378,15 +28273,10 @@ pub fn vmin_s32(a: int32x2_t, b: int32x2_t) -> int32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vmins.v4i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.smin.v4i32"
-        )]
-        fn _vminq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t;
+    unsafe {
+        let mask: int32x4_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_s32(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmin_u8)"]
@@ -28407,15 +28297,10 @@ pub fn vminq_s32(a: int32x4_t, b: int32x4_t) -> int32x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v8i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v8i8"
-        )]
-        fn _vmin_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t;
+    unsafe {
+        let mask: uint8x8_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_u8(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_u8)"]
@@ -28436,15 +28321,10 @@ pub fn vmin_u8(a: uint8x8_t, b: uint8x8_t) -> uint8x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v16i8")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v16i8"
-        )]
-        fn _vminq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t;
+    unsafe {
+        let mask: uint8x16_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_u8(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmin_u16)"]
@@ -28465,15 +28345,10 @@ pub fn vminq_u8(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v4i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v4i16"
-        )]
-        fn _vmin_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t;
+    unsafe {
+        let mask: uint16x4_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_u16(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_u16)"]
@@ -28494,15 +28369,10 @@ pub fn vmin_u16(a: uint16x4_t, b: uint16x4_t) -> uint16x4_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v8i16")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v8i16"
-        )]
-        fn _vminq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t;
+    unsafe {
+        let mask: uint16x8_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_u16(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vmin_u32)"]
@@ -28523,15 +28393,10 @@ pub fn vminq_u16(a: uint16x8_t, b: uint16x8_t) -> uint16x8_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vmin_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v2i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v2i32"
-        )]
-        fn _vmin_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t;
+    unsafe {
+        let mask: uint32x2_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vmin_u32(a, b) }
 }
 #[doc = "Minimum (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminq_u32)"]
@@ -28552,15 +28417,10 @@ pub fn vmin_u32(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t {
     unstable(feature = "stdarch_arm_neon_intrinsics", issue = "111800")
 )]
 pub fn vminq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t {
-    unsafe extern "unadjusted" {
-        #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vminu.v4i32")]
-        #[cfg_attr(
-            any(target_arch = "aarch64", target_arch = "arm64ec"),
-            link_name = "llvm.aarch64.neon.umin.v4i32"
-        )]
-        fn _vminq_u32(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t;
+    unsafe {
+        let mask: uint32x4_t = simd_le(a, b);
+        simd_select(mask, a, b)
     }
-    unsafe { _vminq_u32(a, b) }
 }
 #[doc = "Floating-point Minimum Number (vector)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vminnm_f16)"]
@@ -39566,17 +39426,7 @@ pub fn vqrshrn_n_s16<const N: i32>(a: int16x8_t) -> int8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftns.v8i8")]
         fn _vqrshrn_n_s16(a: int16x8_t, n: int16x8_t) -> int8x8_t;
     }
-    unsafe {
-        _vqrshrn_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16,
-                    -N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqrshrn_n_s16(a, const { int16x8_t([-N as i16; 8]) }) }
 }
 #[doc = "Signed saturating rounded shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrn_n_s32)"]
@@ -39592,12 +39442,7 @@ pub fn vqrshrn_n_s32<const N: i32>(a: int32x4_t) -> int16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftns.v4i16")]
         fn _vqrshrn_n_s32(a: int32x4_t, n: int32x4_t) -> int16x4_t;
     }
-    unsafe {
-        _vqrshrn_n_s32(
-            a,
-            const { int32x4_t([-N as i32, -N as i32, -N as i32, -N as i32]) },
-        )
-    }
+    unsafe { _vqrshrn_n_s32(a, const { int32x4_t([-N; 4]) }) }
 }
 #[doc = "Signed saturating rounded shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrn_n_s64)"]
@@ -39613,7 +39458,7 @@ pub fn vqrshrn_n_s64<const N: i32>(a: int64x2_t) -> int32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftns.v2i32")]
         fn _vqrshrn_n_s64(a: int64x2_t, n: int64x2_t) -> int32x2_t;
     }
-    unsafe { _vqrshrn_n_s64(a, const { int64x2_t([-N as i64, -N as i64]) }) }
+    unsafe { _vqrshrn_n_s64(a, const { int64x2_t([-N as i64; 2]) }) }
 }
 #[doc = "Signed saturating rounded shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrn_n_s16)"]
@@ -39806,17 +39651,7 @@ pub fn vqrshrun_n_s16<const N: i32>(a: int16x8_t) -> uint8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftnsu.v8i8")]
         fn _vqrshrun_n_s16(a: int16x8_t, n: int16x8_t) -> uint8x8_t;
     }
-    unsafe {
-        _vqrshrun_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16,
-                    -N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqrshrun_n_s16(a, const { int16x8_t([-N as i16; 8]) }) }
 }
 #[doc = "Signed saturating rounded shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrun_n_s32)"]
@@ -39832,12 +39667,7 @@ pub fn vqrshrun_n_s32<const N: i32>(a: int32x4_t) -> uint16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftnsu.v4i16")]
         fn _vqrshrun_n_s32(a: int32x4_t, n: int32x4_t) -> uint16x4_t;
     }
-    unsafe {
-        _vqrshrun_n_s32(
-            a,
-            const { int32x4_t([-N as i32, -N as i32, -N as i32, -N as i32]) },
-        )
-    }
+    unsafe { _vqrshrun_n_s32(a, const { int32x4_t([-N; 4]) }) }
 }
 #[doc = "Signed saturating rounded shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrun_n_s64)"]
@@ -39853,7 +39683,7 @@ pub fn vqrshrun_n_s64<const N: i32>(a: int64x2_t) -> uint32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqrshiftnsu.v2i32")]
         fn _vqrshrun_n_s64(a: int64x2_t, n: int64x2_t) -> uint32x2_t;
     }
-    unsafe { _vqrshrun_n_s64(a, const { int64x2_t([-N as i64, -N as i64]) }) }
+    unsafe { _vqrshrun_n_s64(a, const { int64x2_t([-N as i64; 2]) }) }
 }
 #[doc = "Signed saturating rounded shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqrshrun_n_s16)"]
@@ -40758,16 +40588,7 @@ pub fn vqshlu_n_s8<const N: i32>(a: int8x8_t) -> uint8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v8i8")]
         fn _vqshlu_n_s8(a: int8x8_t, n: int8x8_t) -> uint8x8_t;
     }
-    unsafe {
-        _vqshlu_n_s8(
-            a,
-            const {
-                int8x8_t([
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshlu_n_s8(a, const { int8x8_t([N as i8; 8]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s8)"]
@@ -40783,17 +40604,7 @@ pub fn vqshluq_n_s8<const N: i32>(a: int8x16_t) -> uint8x16_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v16i8")]
         fn _vqshluq_n_s8(a: int8x16_t, n: int8x16_t) -> uint8x16_t;
     }
-    unsafe {
-        _vqshluq_n_s8(
-            a,
-            const {
-                int8x16_t([
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshluq_n_s8(a, const { int8x16_t([N as i8; 16]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s16)"]
@@ -40809,12 +40620,7 @@ pub fn vqshlu_n_s16<const N: i32>(a: int16x4_t) -> uint16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v4i16")]
         fn _vqshlu_n_s16(a: int16x4_t, n: int16x4_t) -> uint16x4_t;
     }
-    unsafe {
-        _vqshlu_n_s16(
-            a,
-            const { int16x4_t([N as i16, N as i16, N as i16, N as i16]) },
-        )
-    }
+    unsafe { _vqshlu_n_s16(a, const { int16x4_t([N as i16; 4]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s16)"]
@@ -40830,16 +40636,7 @@ pub fn vqshluq_n_s16<const N: i32>(a: int16x8_t) -> uint16x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v8i16")]
         fn _vqshluq_n_s16(a: int16x8_t, n: int16x8_t) -> uint16x8_t;
     }
-    unsafe {
-        _vqshluq_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    N as i16, N as i16, N as i16, N as i16, N as i16, N as i16, N as i16, N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshluq_n_s16(a, const { int16x8_t([N as i16; 8]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s32)"]
@@ -40855,7 +40652,7 @@ pub fn vqshlu_n_s32<const N: i32>(a: int32x2_t) -> uint32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v2i32")]
         fn _vqshlu_n_s32(a: int32x2_t, n: int32x2_t) -> uint32x2_t;
     }
-    unsafe { _vqshlu_n_s32(a, const { int32x2_t([N as i32, N as i32]) }) }
+    unsafe { _vqshlu_n_s32(a, const { int32x2_t([N; 2]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s32)"]
@@ -40871,12 +40668,7 @@ pub fn vqshluq_n_s32<const N: i32>(a: int32x4_t) -> uint32x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v4i32")]
         fn _vqshluq_n_s32(a: int32x4_t, n: int32x4_t) -> uint32x4_t;
     }
-    unsafe {
-        _vqshluq_n_s32(
-            a,
-            const { int32x4_t([N as i32, N as i32, N as i32, N as i32]) },
-        )
-    }
+    unsafe { _vqshluq_n_s32(a, const { int32x4_t([N; 4]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s64)"]
@@ -40908,7 +40700,7 @@ pub fn vqshluq_n_s64<const N: i32>(a: int64x2_t) -> uint64x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftsu.v2i64")]
         fn _vqshluq_n_s64(a: int64x2_t, n: int64x2_t) -> uint64x2_t;
     }
-    unsafe { _vqshluq_n_s64(a, const { int64x2_t([N as i64, N as i64]) }) }
+    unsafe { _vqshluq_n_s64(a, const { int64x2_t([N as i64; 2]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s8)"]
@@ -40927,16 +40719,7 @@ pub fn vqshlu_n_s8<const N: i32>(a: int8x8_t) -> uint8x8_t {
         )]
         fn _vqshlu_n_s8(a: int8x8_t, n: int8x8_t) -> uint8x8_t;
     }
-    unsafe {
-        _vqshlu_n_s8(
-            a,
-            const {
-                int8x8_t([
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshlu_n_s8(a, const { int8x8_t([N as i8; 8]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s8)"]
@@ -40955,17 +40738,7 @@ pub fn vqshluq_n_s8<const N: i32>(a: int8x16_t) -> uint8x16_t {
         )]
         fn _vqshluq_n_s8(a: int8x16_t, n: int8x16_t) -> uint8x16_t;
     }
-    unsafe {
-        _vqshluq_n_s8(
-            a,
-            const {
-                int8x16_t([
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                    N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8, N as i8,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshluq_n_s8(a, const { int8x16_t([N as i8; 16]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s16)"]
@@ -40984,12 +40757,7 @@ pub fn vqshlu_n_s16<const N: i32>(a: int16x4_t) -> uint16x4_t {
         )]
         fn _vqshlu_n_s16(a: int16x4_t, n: int16x4_t) -> uint16x4_t;
     }
-    unsafe {
-        _vqshlu_n_s16(
-            a,
-            const { int16x4_t([N as i16, N as i16, N as i16, N as i16]) },
-        )
-    }
+    unsafe { _vqshlu_n_s16(a, const { int16x4_t([N as i16; 4]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s16)"]
@@ -41008,16 +40776,7 @@ pub fn vqshluq_n_s16<const N: i32>(a: int16x8_t) -> uint16x8_t {
         )]
         fn _vqshluq_n_s16(a: int16x8_t, n: int16x8_t) -> uint16x8_t;
     }
-    unsafe {
-        _vqshluq_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    N as i16, N as i16, N as i16, N as i16, N as i16, N as i16, N as i16, N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshluq_n_s16(a, const { int16x8_t([N as i16; 8]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s32)"]
@@ -41036,7 +40795,7 @@ pub fn vqshlu_n_s32<const N: i32>(a: int32x2_t) -> uint32x2_t {
         )]
         fn _vqshlu_n_s32(a: int32x2_t, n: int32x2_t) -> uint32x2_t;
     }
-    unsafe { _vqshlu_n_s32(a, const { int32x2_t([N as i32, N as i32]) }) }
+    unsafe { _vqshlu_n_s32(a, const { int32x2_t([N; 2]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshluq_n_s32)"]
@@ -41055,12 +40814,7 @@ pub fn vqshluq_n_s32<const N: i32>(a: int32x4_t) -> uint32x4_t {
         )]
         fn _vqshluq_n_s32(a: int32x4_t, n: int32x4_t) -> uint32x4_t;
     }
-    unsafe {
-        _vqshluq_n_s32(
-            a,
-            const { int32x4_t([N as i32, N as i32, N as i32, N as i32]) },
-        )
-    }
+    unsafe { _vqshluq_n_s32(a, const { int32x4_t([N; 4]) }) }
 }
 #[doc = "Signed saturating shift left unsigned"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshlu_n_s64)"]
@@ -41098,7 +40852,7 @@ pub fn vqshluq_n_s64<const N: i32>(a: int64x2_t) -> uint64x2_t {
         )]
         fn _vqshluq_n_s64(a: int64x2_t, n: int64x2_t) -> uint64x2_t;
     }
-    unsafe { _vqshluq_n_s64(a, const { int64x2_t([N as i64, N as i64]) }) }
+    unsafe { _vqshluq_n_s64(a, const { int64x2_t([N as i64; 2]) }) }
 }
 #[doc = "Signed saturating shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrn_n_s16)"]
@@ -41114,17 +40868,7 @@ pub fn vqshrn_n_s16<const N: i32>(a: int16x8_t) -> int8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftns.v8i8")]
         fn _vqshrn_n_s16(a: int16x8_t, n: int16x8_t) -> int8x8_t;
     }
-    unsafe {
-        _vqshrn_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16,
-                    -N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshrn_n_s16(a, const { int16x8_t([-N as i16; 8]) }) }
 }
 #[doc = "Signed saturating shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrn_n_s32)"]
@@ -41140,12 +40884,7 @@ pub fn vqshrn_n_s32<const N: i32>(a: int32x4_t) -> int16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftns.v4i16")]
         fn _vqshrn_n_s32(a: int32x4_t, n: int32x4_t) -> int16x4_t;
     }
-    unsafe {
-        _vqshrn_n_s32(
-            a,
-            const { int32x4_t([-N as i32, -N as i32, -N as i32, -N as i32]) },
-        )
-    }
+    unsafe { _vqshrn_n_s32(a, const { int32x4_t([-N; 4]) }) }
 }
 #[doc = "Signed saturating shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrn_n_s64)"]
@@ -41161,7 +40900,7 @@ pub fn vqshrn_n_s64<const N: i32>(a: int64x2_t) -> int32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftns.v2i32")]
         fn _vqshrn_n_s64(a: int64x2_t, n: int64x2_t) -> int32x2_t;
     }
-    unsafe { _vqshrn_n_s64(a, const { int64x2_t([-N as i64, -N as i64]) }) }
+    unsafe { _vqshrn_n_s64(a, const { int64x2_t([-N as i64; 2]) }) }
 }
 #[doc = "Signed saturating shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrn_n_s16)"]
@@ -41354,17 +41093,7 @@ pub fn vqshrun_n_s16<const N: i32>(a: int16x8_t) -> uint8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftnsu.v8i8")]
         fn _vqshrun_n_s16(a: int16x8_t, n: int16x8_t) -> uint8x8_t;
     }
-    unsafe {
-        _vqshrun_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16,
-                    -N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vqshrun_n_s16(a, const { int16x8_t([-N as i16; 8]) }) }
 }
 #[doc = "Signed saturating shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrun_n_s32)"]
@@ -41380,12 +41109,7 @@ pub fn vqshrun_n_s32<const N: i32>(a: int32x4_t) -> uint16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftnsu.v4i16")]
         fn _vqshrun_n_s32(a: int32x4_t, n: int32x4_t) -> uint16x4_t;
     }
-    unsafe {
-        _vqshrun_n_s32(
-            a,
-            const { int32x4_t([-N as i32, -N as i32, -N as i32, -N as i32]) },
-        )
-    }
+    unsafe { _vqshrun_n_s32(a, const { int32x4_t([-N; 4]) }) }
 }
 #[doc = "Signed saturating shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrun_n_s64)"]
@@ -41401,7 +41125,7 @@ pub fn vqshrun_n_s64<const N: i32>(a: int64x2_t) -> uint32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vqshiftnsu.v2i32")]
         fn _vqshrun_n_s64(a: int64x2_t, n: int64x2_t) -> uint32x2_t;
     }
-    unsafe { _vqshrun_n_s64(a, const { int64x2_t([-N as i64, -N as i64]) }) }
+    unsafe { _vqshrun_n_s64(a, const { int64x2_t([-N as i64; 2]) }) }
 }
 #[doc = "Signed saturating shift right unsigned narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vqshrun_n_s16)"]
@@ -59559,17 +59283,7 @@ pub fn vrshrn_n_s16<const N: i32>(a: int16x8_t) -> int8x8_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vrshiftn.v8i8")]
         fn _vrshrn_n_s16(a: int16x8_t, n: int16x8_t) -> int8x8_t;
     }
-    unsafe {
-        _vrshrn_n_s16(
-            a,
-            const {
-                int16x8_t([
-                    -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16, -N as i16,
-                    -N as i16,
-                ])
-            },
-        )
-    }
+    unsafe { _vrshrn_n_s16(a, const { int16x8_t([-N as i16; 8]) }) }
 }
 #[doc = "Rounding shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vrshrn_n_s32)"]
@@ -59585,12 +59299,7 @@ pub fn vrshrn_n_s32<const N: i32>(a: int32x4_t) -> int16x4_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vrshiftn.v4i16")]
         fn _vrshrn_n_s32(a: int32x4_t, n: int32x4_t) -> int16x4_t;
     }
-    unsafe {
-        _vrshrn_n_s32(
-            a,
-            const { int32x4_t([-N as i32, -N as i32, -N as i32, -N as i32]) },
-        )
-    }
+    unsafe { _vrshrn_n_s32(a, const { int32x4_t([-N; 4]) }) }
 }
 #[doc = "Rounding shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vrshrn_n_s64)"]
@@ -59606,7 +59315,7 @@ pub fn vrshrn_n_s64<const N: i32>(a: int64x2_t) -> int32x2_t {
         #[cfg_attr(target_arch = "arm", link_name = "llvm.arm.neon.vrshiftn.v2i32")]
         fn _vrshrn_n_s64(a: int64x2_t, n: int64x2_t) -> int32x2_t;
     }
-    unsafe { _vrshrn_n_s64(a, const { int64x2_t([-N as i64, -N as i64]) }) }
+    unsafe { _vrshrn_n_s64(a, const { int64x2_t([-N as i64; 2]) }) }
 }
 #[doc = "Rounding shift right narrow"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vrshrn_n_s16)"]
@@ -63259,7 +62968,7 @@ pub fn vsli_n_u32<const N: i32>(a: uint32x2_t, b: uint32x2_t) -> uint32x2_t {
         transmute(vshiftins_v2i32(
             transmute(a),
             transmute(b),
-            int32x2_t::splat(N as i32),
+            int32x2_t::splat(N),
         ))
     }
 }
@@ -63277,7 +62986,7 @@ pub fn vsliq_n_u32<const N: i32>(a: uint32x4_t, b: uint32x4_t) -> uint32x4_t {
         transmute(vshiftins_v4i32(
             transmute(a),
             transmute(b),
-            int32x4_t::splat(N as i32),
+            int32x4_t::splat(N),
         ))
     }
 }
@@ -63815,7 +63524,7 @@ pub fn vsriq_n_s16<const N: i32>(a: int16x8_t, b: int16x8_t) -> int16x8_t {
 #[rustc_legacy_const_generics(2)]
 pub fn vsri_n_s32<const N: i32>(a: int32x2_t, b: int32x2_t) -> int32x2_t {
     static_assert!(1 <= N && N <= 32);
-    vshiftins_v2i32(a, b, int32x2_t::splat(-N as i32))
+    vshiftins_v2i32(a, b, int32x2_t::splat(-N))
 }
 #[doc = "Shift Right and Insert (immediate)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vsriq_n_s32)"]
@@ -63827,7 +63536,7 @@ pub fn vsri_n_s32<const N: i32>(a: int32x2_t, b: int32x2_t) -> int32x2_t {
 #[rustc_legacy_const_generics(2)]
 pub fn vsriq_n_s32<const N: i32>(a: int32x4_t, b: int32x4_t) -> int32x4_t {
     static_assert!(1 <= N && N <= 32);
-    vshiftins_v4i32(a, b, int32x4_t::splat(-N as i32))
+    vshiftins_v4i32(a, b, int32x4_t::splat(-N))
 }
 #[doc = "Shift Right and Insert (immediate)"]
 #[doc = "[Arm's documentation](https://developer.arm.com/architectures/instruction-sets/intrinsics/vsri_n_s64)"]
