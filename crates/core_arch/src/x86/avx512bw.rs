@@ -5609,7 +5609,8 @@ pub unsafe fn _mm_storeu_epi8(mem_addr: *mut i8, a: __m128i) {
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm512_mask_loadu_epi16(src: __m512i, k: __mmask32, mem_addr: *const i16) -> __m512i {
-    transmute(loaddqu16_512(mem_addr, src.as_i16x32(), k))
+    let mask = simd_select_bitmask(k, i16x32::splat(!0), i16x32::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i16x32()).as_m512i()
 }
 
 /// Load packed 16-bit integers from memory into dst using zeromask k
@@ -5635,7 +5636,8 @@ pub unsafe fn _mm512_maskz_loadu_epi16(k: __mmask32, mem_addr: *const i16) -> __
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm512_mask_loadu_epi8(src: __m512i, k: __mmask64, mem_addr: *const i8) -> __m512i {
-    transmute(loaddqu8_512(mem_addr, src.as_i8x64(), k))
+    let mask = simd_select_bitmask(k, i8x64::splat(!0), i8x64::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i8x64()).as_m512i()
 }
 
 /// Load packed 8-bit integers from memory into dst using zeromask k
@@ -5661,7 +5663,8 @@ pub unsafe fn _mm512_maskz_loadu_epi8(k: __mmask64, mem_addr: *const i8) -> __m5
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm256_mask_loadu_epi16(src: __m256i, k: __mmask16, mem_addr: *const i16) -> __m256i {
-    transmute(loaddqu16_256(mem_addr, src.as_i16x16(), k))
+    let mask = simd_select_bitmask(k, i16x16::splat(!0), i16x16::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i16x16()).as_m256i()
 }
 
 /// Load packed 16-bit integers from memory into dst using zeromask k
@@ -5687,7 +5690,8 @@ pub unsafe fn _mm256_maskz_loadu_epi16(k: __mmask16, mem_addr: *const i16) -> __
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm256_mask_loadu_epi8(src: __m256i, k: __mmask32, mem_addr: *const i8) -> __m256i {
-    transmute(loaddqu8_256(mem_addr, src.as_i8x32(), k))
+    let mask = simd_select_bitmask(k, i8x32::splat(!0), i8x32::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i8x32()).as_m256i()
 }
 
 /// Load packed 8-bit integers from memory into dst using zeromask k
@@ -5713,7 +5717,8 @@ pub unsafe fn _mm256_maskz_loadu_epi8(k: __mmask32, mem_addr: *const i8) -> __m2
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm_mask_loadu_epi16(src: __m128i, k: __mmask8, mem_addr: *const i16) -> __m128i {
-    transmute(loaddqu16_128(mem_addr, src.as_i16x8(), k))
+    let mask = simd_select_bitmask(k, i16x8::splat(!0), i16x8::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i16x8()).as_m128i()
 }
 
 /// Load packed 16-bit integers from memory into dst using zeromask k
@@ -5739,7 +5744,8 @@ pub unsafe fn _mm_maskz_loadu_epi16(k: __mmask8, mem_addr: *const i16) -> __m128
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm_mask_loadu_epi8(src: __m128i, k: __mmask16, mem_addr: *const i8) -> __m128i {
-    transmute(loaddqu8_128(mem_addr, src.as_i8x16(), k))
+    let mask = simd_select_bitmask(k, i8x16::splat(!0), i8x16::ZERO);
+    simd_masked_load!(SimdAlign::Unaligned, mask, mem_addr, src.as_i8x16()).as_m128i()
 }
 
 /// Load packed 8-bit integers from memory into dst using zeromask k
@@ -5764,7 +5770,8 @@ pub unsafe fn _mm_maskz_loadu_epi8(k: __mmask16, mem_addr: *const i8) -> __m128i
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm512_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask32, a: __m512i) {
-    storedqu16_512(mem_addr, a.as_i16x32(), mask)
+    let mask = simd_select_bitmask(mask, i16x32::splat(!0), i16x32::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i16x32());
 }
 
 /// Store packed 8-bit integers from a into memory using writemask k.
@@ -5776,7 +5783,8 @@ pub unsafe fn _mm512_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask32, a: _
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm512_mask_storeu_epi8(mem_addr: *mut i8, mask: __mmask64, a: __m512i) {
-    storedqu8_512(mem_addr, a.as_i8x64(), mask)
+    let mask = simd_select_bitmask(mask, i8x64::splat(!0), i8x64::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i8x64());
 }
 
 /// Store packed 16-bit integers from a into memory using writemask k.
@@ -5788,7 +5796,8 @@ pub unsafe fn _mm512_mask_storeu_epi8(mem_addr: *mut i8, mask: __mmask64, a: __m
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm256_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask16, a: __m256i) {
-    storedqu16_256(mem_addr, a.as_i16x16(), mask)
+    let mask = simd_select_bitmask(mask, i16x16::splat(!0), i16x16::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i16x16());
 }
 
 /// Store packed 8-bit integers from a into memory using writemask k.
@@ -5800,7 +5809,8 @@ pub unsafe fn _mm256_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask16, a: _
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm256_mask_storeu_epi8(mem_addr: *mut i8, mask: __mmask32, a: __m256i) {
-    storedqu8_256(mem_addr, a.as_i8x32(), mask)
+    let mask = simd_select_bitmask(mask, i8x32::splat(!0), i8x32::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i8x32());
 }
 
 /// Store packed 16-bit integers from a into memory using writemask k.
@@ -5812,7 +5822,8 @@ pub unsafe fn _mm256_mask_storeu_epi8(mem_addr: *mut i8, mask: __mmask32, a: __m
 #[cfg_attr(test, assert_instr(vmovdqu16))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask8, a: __m128i) {
-    storedqu16_128(mem_addr, a.as_i16x8(), mask)
+    let mask = simd_select_bitmask(mask, i16x8::splat(!0), i16x8::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i16x8());
 }
 
 /// Store packed 8-bit integers from a into memory using writemask k.
@@ -5824,7 +5835,8 @@ pub unsafe fn _mm_mask_storeu_epi16(mem_addr: *mut i16, mask: __mmask8, a: __m12
 #[cfg_attr(test, assert_instr(vmovdqu8))]
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 pub unsafe fn _mm_mask_storeu_epi8(mem_addr: *mut i8, mask: __mmask16, a: __m128i) {
-    storedqu8_128(mem_addr, a.as_i8x16(), mask)
+    let mask = simd_select_bitmask(mask, i8x16::splat(!0), i8x16::ZERO);
+    simd_masked_store!(SimdAlign::Unaligned, mask, mem_addr, a.as_i8x16());
 }
 
 /// Multiply packed signed 16-bit integers in a and b, producing intermediate signed 32-bit integers. Horizontally add adjacent pairs of intermediate 32-bit integers, and pack the results in dst.
@@ -6852,7 +6864,12 @@ pub fn _mm_maskz_slli_epi16<const IMM8: u32>(k: __mmask8, a: __m128i) -> __m128i
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsllvw))]
 pub fn _mm512_sllv_epi16(a: __m512i, count: __m512i) -> __m512i {
-    unsafe { transmute(vpsllvw(a.as_i16x32(), count.as_i16x32())) }
+    unsafe {
+        let count = count.as_u16x32();
+        let no_overflow: u16x32 = simd_lt(count, u16x32::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x32::ZERO);
+        simd_select(no_overflow, simd_shl(a.as_u16x32(), count), u16x32::ZERO).as_m512i()
+    }
 }
 
 /// Shift packed 16-bit integers in a left by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -6891,7 +6908,12 @@ pub fn _mm512_maskz_sllv_epi16(k: __mmask32, a: __m512i, count: __m512i) -> __m5
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsllvw))]
 pub fn _mm256_sllv_epi16(a: __m256i, count: __m256i) -> __m256i {
-    unsafe { transmute(vpsllvw256(a.as_i16x16(), count.as_i16x16())) }
+    unsafe {
+        let count = count.as_u16x16();
+        let no_overflow: u16x16 = simd_lt(count, u16x16::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x16::ZERO);
+        simd_select(no_overflow, simd_shl(a.as_u16x16(), count), u16x16::ZERO).as_m256i()
+    }
 }
 
 /// Shift packed 16-bit integers in a left by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -6930,7 +6952,12 @@ pub fn _mm256_maskz_sllv_epi16(k: __mmask16, a: __m256i, count: __m256i) -> __m2
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsllvw))]
 pub fn _mm_sllv_epi16(a: __m128i, count: __m128i) -> __m128i {
-    unsafe { transmute(vpsllvw128(a.as_i16x8(), count.as_i16x8())) }
+    unsafe {
+        let count = count.as_u16x8();
+        let no_overflow: u16x8 = simd_lt(count, u16x8::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x8::ZERO);
+        simd_select(no_overflow, simd_shl(a.as_u16x8(), count), u16x8::ZERO).as_m128i()
+    }
 }
 
 /// Shift packed 16-bit integers in a left by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7188,7 +7215,12 @@ pub fn _mm_maskz_srli_epi16<const IMM8: i32>(k: __mmask8, a: __m128i) -> __m128i
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsrlvw))]
 pub fn _mm512_srlv_epi16(a: __m512i, count: __m512i) -> __m512i {
-    unsafe { transmute(vpsrlvw(a.as_i16x32(), count.as_i16x32())) }
+    unsafe {
+        let count = count.as_u16x32();
+        let no_overflow: u16x32 = simd_lt(count, u16x32::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x32::ZERO);
+        simd_select(no_overflow, simd_shr(a.as_u16x32(), count), u16x32::ZERO).as_m512i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7227,7 +7259,12 @@ pub fn _mm512_maskz_srlv_epi16(k: __mmask32, a: __m512i, count: __m512i) -> __m5
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsrlvw))]
 pub fn _mm256_srlv_epi16(a: __m256i, count: __m256i) -> __m256i {
-    unsafe { transmute(vpsrlvw256(a.as_i16x16(), count.as_i16x16())) }
+    unsafe {
+        let count = count.as_u16x16();
+        let no_overflow: u16x16 = simd_lt(count, u16x16::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x16::ZERO);
+        simd_select(no_overflow, simd_shr(a.as_u16x16(), count), u16x16::ZERO).as_m256i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7266,7 +7303,12 @@ pub fn _mm256_maskz_srlv_epi16(k: __mmask16, a: __m256i, count: __m256i) -> __m2
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsrlvw))]
 pub fn _mm_srlv_epi16(a: __m128i, count: __m128i) -> __m128i {
-    unsafe { transmute(vpsrlvw128(a.as_i16x8(), count.as_i16x8())) }
+    unsafe {
+        let count = count.as_u16x8();
+        let no_overflow: u16x8 = simd_lt(count, u16x8::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, count, u16x8::ZERO);
+        simd_select(no_overflow, simd_shr(a.as_u16x8(), count), u16x8::ZERO).as_m128i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in zeros, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7511,7 +7553,12 @@ pub fn _mm_maskz_srai_epi16<const IMM8: u32>(k: __mmask8, a: __m128i) -> __m128i
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsravw))]
 pub fn _mm512_srav_epi16(a: __m512i, count: __m512i) -> __m512i {
-    unsafe { transmute(vpsravw(a.as_i16x32(), count.as_i16x32())) }
+    unsafe {
+        let count = count.as_u16x32();
+        let no_overflow: u16x32 = simd_lt(count, u16x32::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, transmute(count), i16x32::splat(15));
+        simd_shr(a.as_i16x32(), count).as_m512i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in sign bits, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7550,7 +7597,12 @@ pub fn _mm512_maskz_srav_epi16(k: __mmask32, a: __m512i, count: __m512i) -> __m5
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsravw))]
 pub fn _mm256_srav_epi16(a: __m256i, count: __m256i) -> __m256i {
-    unsafe { transmute(vpsravw256(a.as_i16x16(), count.as_i16x16())) }
+    unsafe {
+        let count = count.as_u16x16();
+        let no_overflow: u16x16 = simd_lt(count, u16x16::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, transmute(count), i16x16::splat(15));
+        simd_shr(a.as_i16x16(), count).as_m256i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in sign bits, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -7589,7 +7641,12 @@ pub fn _mm256_maskz_srav_epi16(k: __mmask16, a: __m256i, count: __m256i) -> __m2
 #[stable(feature = "stdarch_x86_avx512", since = "1.89")]
 #[cfg_attr(test, assert_instr(vpsravw))]
 pub fn _mm_srav_epi16(a: __m128i, count: __m128i) -> __m128i {
-    unsafe { transmute(vpsravw128(a.as_i16x8(), count.as_i16x8())) }
+    unsafe {
+        let count = count.as_u16x8();
+        let no_overflow: u16x8 = simd_lt(count, u16x8::splat(u16::BITS as u16));
+        let count = simd_select(no_overflow, transmute(count), i16x8::splat(15));
+        simd_shr(a.as_i16x8(), count).as_m128i()
+    }
 }
 
 /// Shift packed 16-bit integers in a right by the amount specified by the corresponding element in count while shifting in sign bits, and store the results in dst using writemask k (elements are copied from src when the corresponding mask bit is not set).
@@ -11645,32 +11702,11 @@ unsafe extern "C" {
     #[link_name = "llvm.x86.avx512.psll.w.512"]
     fn vpsllw(a: i16x32, count: i16x8) -> i16x32;
 
-    #[link_name = "llvm.x86.avx512.psllv.w.512"]
-    fn vpsllvw(a: i16x32, b: i16x32) -> i16x32;
-    #[link_name = "llvm.x86.avx512.psllv.w.256"]
-    fn vpsllvw256(a: i16x16, b: i16x16) -> i16x16;
-    #[link_name = "llvm.x86.avx512.psllv.w.128"]
-    fn vpsllvw128(a: i16x8, b: i16x8) -> i16x8;
-
     #[link_name = "llvm.x86.avx512.psrl.w.512"]
     fn vpsrlw(a: i16x32, count: i16x8) -> i16x32;
 
-    #[link_name = "llvm.x86.avx512.psrlv.w.512"]
-    fn vpsrlvw(a: i16x32, b: i16x32) -> i16x32;
-    #[link_name = "llvm.x86.avx512.psrlv.w.256"]
-    fn vpsrlvw256(a: i16x16, b: i16x16) -> i16x16;
-    #[link_name = "llvm.x86.avx512.psrlv.w.128"]
-    fn vpsrlvw128(a: i16x8, b: i16x8) -> i16x8;
-
     #[link_name = "llvm.x86.avx512.psra.w.512"]
     fn vpsraw(a: i16x32, count: i16x8) -> i16x32;
-
-    #[link_name = "llvm.x86.avx512.psrav.w.512"]
-    fn vpsravw(a: i16x32, count: i16x32) -> i16x32;
-    #[link_name = "llvm.x86.avx512.psrav.w.256"]
-    fn vpsravw256(a: i16x16, count: i16x16) -> i16x16;
-    #[link_name = "llvm.x86.avx512.psrav.w.128"]
-    fn vpsravw128(a: i16x8, count: i16x8) -> i16x8;
 
     #[link_name = "llvm.x86.avx512.vpermi2var.hi.512"]
     fn vpermi2w(a: i16x32, idx: i16x32, b: i16x32) -> i16x32;
@@ -11733,33 +11769,6 @@ unsafe extern "C" {
     fn vpmovuswbmem256(mem_addr: *mut i8, a: i16x16, mask: u16);
     #[link_name = "llvm.x86.avx512.mask.pmovus.wb.mem.128"]
     fn vpmovuswbmem128(mem_addr: *mut i8, a: i16x8, mask: u8);
-
-    #[link_name = "llvm.x86.avx512.mask.loadu.b.128"]
-    fn loaddqu8_128(mem_addr: *const i8, a: i8x16, mask: u16) -> i8x16;
-    #[link_name = "llvm.x86.avx512.mask.loadu.w.128"]
-    fn loaddqu16_128(mem_addr: *const i16, a: i16x8, mask: u8) -> i16x8;
-    #[link_name = "llvm.x86.avx512.mask.loadu.b.256"]
-    fn loaddqu8_256(mem_addr: *const i8, a: i8x32, mask: u32) -> i8x32;
-    #[link_name = "llvm.x86.avx512.mask.loadu.w.256"]
-    fn loaddqu16_256(mem_addr: *const i16, a: i16x16, mask: u16) -> i16x16;
-    #[link_name = "llvm.x86.avx512.mask.loadu.b.512"]
-    fn loaddqu8_512(mem_addr: *const i8, a: i8x64, mask: u64) -> i8x64;
-    #[link_name = "llvm.x86.avx512.mask.loadu.w.512"]
-    fn loaddqu16_512(mem_addr: *const i16, a: i16x32, mask: u32) -> i16x32;
-
-    #[link_name = "llvm.x86.avx512.mask.storeu.b.128"]
-    fn storedqu8_128(mem_addr: *mut i8, a: i8x16, mask: u16);
-    #[link_name = "llvm.x86.avx512.mask.storeu.w.128"]
-    fn storedqu16_128(mem_addr: *mut i16, a: i16x8, mask: u8);
-    #[link_name = "llvm.x86.avx512.mask.storeu.b.256"]
-    fn storedqu8_256(mem_addr: *mut i8, a: i8x32, mask: u32);
-    #[link_name = "llvm.x86.avx512.mask.storeu.w.256"]
-    fn storedqu16_256(mem_addr: *mut i16, a: i16x16, mask: u16);
-    #[link_name = "llvm.x86.avx512.mask.storeu.b.512"]
-    fn storedqu8_512(mem_addr: *mut i8, a: i8x64, mask: u64);
-    #[link_name = "llvm.x86.avx512.mask.storeu.w.512"]
-    fn storedqu16_512(mem_addr: *mut i16, a: i16x32, mask: u32);
-
 }
 
 #[cfg(test)]
